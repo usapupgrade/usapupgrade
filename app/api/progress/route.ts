@@ -5,6 +5,11 @@ export async function POST(request: NextRequest) {
   try {
     const { email, lessonId, xpEarned, isCorrect } = await request.json()
     
+    // Check if supabaseAdmin is available
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 500 })
+    }
+    
     // Get user by email
     const { data: user, error: userError } = await supabaseAdmin
       .from('profiles')
@@ -61,6 +66,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Email required' }, { status: 400 })
     }
     
+    // Check if supabaseAdmin is available
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 500 })
+    }
+    
     const { data: user, error } = await supabaseAdmin
       .from('profiles')
       .select('completed_lessons, total_xp, current_level, current_streak, longest_streak')
@@ -82,4 +92,4 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching progress:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-} 
+}
