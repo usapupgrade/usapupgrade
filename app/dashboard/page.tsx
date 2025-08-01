@@ -122,7 +122,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
-              <span className="text-lg sm:text-xl font-bold text-gray-900">{user.streak || 0}</span>
+              <span className="text-lg sm:text-xl font-bold text-gray-900">{user.current_streak || 0}</span>
             </div>
             <p className="text-xs sm:text-sm text-gray-600 mt-1">Day Streak 🔥</p>
           </div>
@@ -257,9 +257,7 @@ export default function Dashboard() {
             Start conversations with a warm 'Good morning/afternoon' and use appropriate titles when addressing superiors."
           </p>
         </div>
-
-
       </div>
     </div>
   )
-} 
+}
