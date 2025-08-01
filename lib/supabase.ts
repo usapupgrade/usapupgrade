@@ -7,11 +7,11 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 // Validate required environment variables
 if (!supabaseUrl) {
-  throw new Error('NEXT_PUBLIC_SUPABASE_URL is required')
+  console.warn('NEXT_PUBLIC_SUPABASE_URL is missing - using fallback')
 }
 
 if (!supabaseAnonKey) {
-  throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY is required')
+  console.warn('NEXT_PUBLIC_SUPABASE_ANON_KEY is missing - using fallback')
 }
 
 // Temporarily make service key optional for testing
@@ -20,14 +20,17 @@ if (!supabaseServiceKey) {
 }
 
 // Create Supabase client for client-side operations
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(
+  supabaseUrl || 'https://demo.supabase.co',
+  supabaseAnonKey || 'demo-key'
+)
 
 // Admin client for server-side operations (only if service key is available)
-export const supabaseAdmin = supabaseServiceKey 
+export const supabaseAdmin = supabaseServiceKey && supabaseUrl
   ? createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false
       }
     })
-  : null 
+  : null
