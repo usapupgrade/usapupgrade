@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function PUT(request: NextRequest) {
   try {
+    // Check if supabaseAdmin is available
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 500 })
+    }
+    
     const { first_name, last_name } = await request.json()
     
     // Validate input
@@ -46,7 +46,7 @@ export async function PUT(request: NextRequest) {
     const userId = 'demo-user-123'
     
     // Check if user can change certification name (30-day restriction)
-    const { data: canChange, error: checkError } = await supabase
+    const { data: canChange, error: checkError } = await supabaseAdmin
       .rpc('can_change_certification_name', { user_uuid: userId })
     
     if (checkError) {
@@ -59,7 +59,7 @@ export async function PUT(request: NextRequest) {
     
     if (!canChange) {
       // Get the last update date to show user when they can change again
-      const { data: userData, error: userError } = await supabase
+      const { data: userData, error: userError } = await supabaseAdmin
         .from('users')
         .select('certification_name_updated_at')
         .eq('id', userId)
@@ -88,7 +88,7 @@ export async function PUT(request: NextRequest) {
     }
     
     // Update certification name
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('users')
       .update({
         certification_first_name: first_name.trim(),
@@ -127,6 +127,11 @@ export async function PUT(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if supabaseAdmin is available
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 500 })
+    }
+    
     // Get user from auth header
     const authHeader = request.headers.get('authorization')
     if (!authHeader) {
@@ -140,7 +145,7 @@ export async function GET(request: NextRequest) {
     const userId = 'demo-user-123'
     
     // Get current certification name and last update
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('users')
       .select('certification_first_name, certification_last_name, certification_name_updated_at')
       .eq('id', userId)
@@ -155,7 +160,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Check if user can change name
-    const { data: canChange } = await supabase
+    const { data: canChange } = await supabaseAdmin
       .rpc('can_change_certification_name', { user_uuid: userId })
     
     let nextAllowedDate = null

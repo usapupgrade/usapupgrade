@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if supabaseAdmin is available
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 500 })
+    }
+    
     const { voucherCode, userId, orderAmount } = await request.json()
 
     if (!voucherCode || !userId || !orderAmount) {
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Call the database function to validate voucher
-    const { data, error } = await supabase.rpc('validate_voucher', {
+    const { data, error } = await supabaseAdmin.rpc('validate_voucher', {
       voucher_code: voucherCode.toUpperCase(),
       user_uuid: userId,
       order_amount: orderAmount

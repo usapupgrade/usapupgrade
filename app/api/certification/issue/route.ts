@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if supabaseAdmin is available
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 500 })
+    }
+    
     const { first_name, last_name } = await request.json()
     
     // Validate input
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     const userId = 'demo-user-123'
     
     // Check if user already has a certification
-    const { data: existingCert, error: certError } = await supabase
+    const { data: existingCert, error: certError } = await supabaseAdmin
       .from('certifications')
       .select('id, certificate_id, issued_at')
       .eq('user_id', userId)
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Get user's completion data
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('total_xp, longest_streak, subscription_status')
       .eq('id', userId)
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Generate unique certificate ID using database function
-    const { data: certIdData, error: certIdError } = await supabase
+    const { data: certIdData, error: certIdError } = await supabaseAdmin
       .rpc('generate_certificate_id')
     
     if (certIdError) {
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Issue certification with automated certificate ID
-    const { data: certData, error: issueError } = await supabase
+    const { data: certData, error: issueError } = await supabaseAdmin
       .rpc('issue_certification', {
         user_uuid: userId,
         first_name: first_name.trim(),
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Get the issued certification details
-    const { data: issuedCert, error: fetchError } = await supabase
+    const { data: issuedCert, error: fetchError } = await supabaseAdmin
       .from('certifications')
       .select('*')
       .eq('id', certData)
@@ -180,6 +180,11 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if supabaseAdmin is available
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 500 })
+    }
+    
     // Get user from auth header
     const authHeader = request.headers.get('authorization')
     if (!authHeader) {
@@ -193,7 +198,7 @@ export async function GET(request: NextRequest) {
     const userId = 'demo-user-123'
     
     // Get user's certification status
-    const { data: certData, error: certError } = await supabase
+    const { data: certData, error: certError } = await supabaseAdmin
       .from('certifications')
       .select('*')
       .eq('user_id', userId)
@@ -208,7 +213,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Get user's completion data
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('total_xp, longest_streak, subscription_status, certification_first_name, certification_last_name')
       .eq('id', userId)

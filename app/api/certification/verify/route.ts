@@ -1,15 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-// Check if Supabase environment variables are available
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-let supabase: any = null
-
-if (supabaseUrl && supabaseKey) {
-  supabase = createClient(supabaseUrl, supabaseKey)
-}
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,7 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // If Supabase is not configured, use mock data for testing
-    if (!supabase) {
+    if (!supabaseAdmin) {
       // Mock certificate data for testing
       const mockCertificates = [
         {
@@ -119,7 +109,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Query the database for the certificate
-    const { data: certificate, error } = await supabase
+    const { data: certificate, error } = await supabaseAdmin
       .from('certifications')
       .select('*')
       .eq('certificate_id', certificateId)
@@ -196,7 +186,7 @@ export async function GET(request: NextRequest) {
     }
 
     // If Supabase is not configured, use mock data for testing
-    if (!supabase) {
+    if (!supabaseAdmin) {
       // Mock certificate data for testing
       const mockCertificates = [
         {
@@ -266,7 +256,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Query the database for the certificate
-    const { data: certificate, error } = await supabase
+    const { data: certificate, error } = await supabaseAdmin
       .from('certifications')
       .select('*')
       .eq('certificate_id', certificateId)

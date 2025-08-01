@@ -5,6 +5,11 @@ export async function POST(request: NextRequest) {
   try {
     const { email, name, subscriptionStatus = 'free' } = await request.json()
     
+    // Check if supabaseAdmin is available
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 500 })
+    }
+    
     // Check if user already exists
     const { data: existingUser } = await supabaseAdmin
       .from('profiles')
@@ -52,6 +57,11 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const email = searchParams.get('email')
+    
+    // Check if supabaseAdmin is available
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 500 })
+    }
     
     if (email) {
       const { data: user, error } = await supabaseAdmin

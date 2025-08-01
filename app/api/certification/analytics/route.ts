@@ -1,15 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-// Check if Supabase environment variables are available
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-let supabase: any = null
-
-if (supabaseUrl && supabaseKey) {
-  supabase = createClient(supabaseUrl, supabaseKey)
-}
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,7 +7,7 @@ export async function GET(request: NextRequest) {
     const timeRange = searchParams.get('range') || '30d'
     
     // If Supabase is not configured, return mock data
-    if (!supabase) {
+    if (!supabaseAdmin) {
       return NextResponse.json({
         success: true,
         data: {
@@ -71,7 +61,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get certificate statistics
-    const { data: certificates, error: certError } = await supabase
+    const { data: certificates, error: certError } = await supabaseAdmin
       .from('certifications')
       .select('*')
       .gte('issued_at', startDate.toISOString())
@@ -137,7 +127,11 @@ export async function GET(request: NextRequest) {
 
 async function getTotalUsers(): Promise<number> {
   try {
-    const { count, error } = await supabase
+    if (!supabaseAdmin) {
+      return 0
+    }
+    
+    const { count, error } = await supabaseAdmin
       .from('users')
       .select('*', { count: 'exact', head: true })
     
