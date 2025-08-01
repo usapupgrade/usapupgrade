@@ -1,0 +1,57 @@
+{
+  "name": "UsapUpgrade - Professional Communication Skills",
+  "short_name": "UsapUpgrade",
+  "description": "The Duolingo of conversation skills for Filipino professionals. Learn workplace communication through gamified lessons.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3B82F6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["education", "productivity", "business"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+      "shortcuts": [
+      {
+        "name": "Start Today's Lesson",
+        "short_name": "Today's Lesson",
+        "description": "Continue your daily learning streak",
+        "url": "/dashboard"
+      },
+      {
+        "name": "View Achievements",
+        "short_name": "Achievements",
+        "description": "Check your progress and unlocked achievements",
+        "url": "/achievements"
+      }
+    ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "ConvoMaster Dashboard - Track your progress and start lessons"
+    },
+    {
+      "src": "/screenshots/mobile-1.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Interactive Lesson - Practice real workplace scenarios"
+    }
+  ]
+} 
