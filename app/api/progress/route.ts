@@ -92,4 +92,4 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching progress:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-} 
+}
