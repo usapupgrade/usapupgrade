@@ -180,7 +180,7 @@ function UserProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: 'https://usapupgrade.com/auth/callback'
         }
       })
 
@@ -251,7 +251,7 @@ function UserProvider({ children }: { children: ReactNode }) {
   const resetPassword = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+        redirectTo: 'https://usapupgrade.com/auth/reset-password',
       })
 
       if (error) {
