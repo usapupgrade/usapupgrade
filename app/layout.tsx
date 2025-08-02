@@ -21,14 +21,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://usapupgrade.app'),
+  metadataBase: new URL('https://usapupgrade-auod.vercel.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: 'UsapUpgrade - Upgrade Conversations in 5 Minutes a Day',
     description: 'Learn better communication through bite-sized daily lessons and interactive scenarios.',
-    url: 'https://usapupgrade.app',
+    url: 'https://usapupgrade-auod.vercel.app',
     siteName: 'UsapUpgrade',
     images: [
       {
@@ -79,7 +79,6 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} h-full`}>
         <Providers>
-          <DataMigrationBanner />
           {children}
           <Toaster 
             position="top-center"
@@ -87,8 +86,6 @@ export default function RootLayout({
             closeButton
             duration={4000}
           />
-          <ServiceWorkerRegistration />
-          <PWAInstall />
         </Providers>
       </body>
     </html>
