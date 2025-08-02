@@ -33,4 +33,4 @@ export const supabaseAdmin = supabaseServiceKey && supabaseUrl
         persistSession: false
       }
     })
-  : null 
+  : null
