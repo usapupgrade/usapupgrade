@@ -84,73 +84,6 @@ export default function SignInPage() {
           transition={{ duration: 0.3 }}
           className="space-y-6"
         >
-          {/* Email/Password Form */}
-          <form onSubmit={handleEmailSignIn} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-primary-700 mb-2">
-                Email Address
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-3 border border-primary-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                placeholder="Enter your email"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-primary-700 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 pr-12 border border-primary-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary-500 hover:text-primary-700"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            {error && (
-              <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 px-6 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors disabled:opacity-50 font-semibold"
-            >
-              {loading ? 'Signing In...' : 'Sign In'}
-            </button>
-          </form>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-primary-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gradient-to-br from-primary-50 to-primary-100 text-primary-500">
-                Or continue with
-              </span>
-            </div>
-          </div>
-
           {/* Google Sign In */}
           <button
             onClick={handleGoogleSignIn}
@@ -166,16 +99,21 @@ export default function SignInPage() {
             <span>Continue with Google</span>
           </button>
 
+          {/* Trust Building Message */}
           <div className="text-center space-y-2">
+            <p className="text-sm text-primary-500 opacity-70">
+              Sign in securely with your Google account
+            </p>
+            <p className="text-xs text-primary-400 opacity-60">
+              Powered by Supabase authentication
+            </p>
+          </div>
+
+          <div className="text-center">
             <p className="text-sm text-primary-600">
               Don't have an account?{' '}
               <Link href="/auth/signup" className="text-accent-600 hover:text-accent-700 font-medium">
                 Sign up
-              </Link>
-            </p>
-            <p className="text-sm text-primary-600">
-              <Link href="/auth/reset-password" className="text-accent-600 hover:text-accent-700 font-medium">
-                Forgot your password?
               </Link>
             </p>
           </div>
