@@ -48,7 +48,7 @@ export default function UsersManagement() {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/admin/users')
+      const response = await fetch(`/api/admin/users?t=${Date.now()}`)
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
@@ -171,6 +171,13 @@ export default function UsersManagement() {
                 }`}
               >
                 {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={fetchUsers}
+                className="px-4 py-2 bg-accent-500 text-white rounded-lg hover:bg-accent-600 transition-colors flex items-center justify-center space-x-2 mr-2"
+              >
+                <TrendingUp className="w-4 h-4" />
+                <span>Refresh</span>
               </button>
               <button
                 onClick={() => window.location.href = '/admin'}
