@@ -15,7 +15,6 @@ export async function GET(request: NextRequest) {
         email,
         name,
         subscription_status,
-        is_premium,
         total_xp,
         current_level,
         current_streak,

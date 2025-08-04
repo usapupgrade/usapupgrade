@@ -24,7 +24,10 @@ export async function POST(request: NextRequest) {
       sale_timestamp: formData.get('sale_timestamp') || '',
       buyer_email: formData.get('buyer_email') || '',
       price_cents: parseInt(formData.get('price_cents') || '0'),
-      currency: formData.get('currency') || 'PHP',
+      price: parseInt(formData.get('price') || '0'), // Gumroad sends 'price' in USD cents
+      price_in_cents: parseInt(formData.get('price_in_cents') || '0'),
+      amount_cents: parseInt(formData.get('amount_cents') || '0'),
+      currency: formData.get('currency') || 'USD',
       product_id: formData.get('product_id') || '',
       product_name: formData.get('product_name') || '',
       purchaser_id: formData.get('purchaser_id') || '',
@@ -39,6 +42,10 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Gumroad webhook data:', webhookData)
+    console.log('Price from Gumroad (USD cents):', webhookData.price)
+    console.log('Price cents from Gumroad:', webhookData.price_cents)
+    console.log('Currency from Gumroad:', webhookData.currency)
+    console.log('Full webhook body:', body)
 
     // Process webhook data
     const processed = gumroad.processWebhook(webhookData)
@@ -102,7 +109,10 @@ export async function POST(request: NextRequest) {
         sale_id: processed.saleId,
         product_id: webhookData.product_id,
         email: processed.userEmail,
-        price: processed.amount,
+        price: webhookData.price > 0 ? webhookData.price / 100 : 
+               webhookData.price_cents > 0 ? webhookData.price_cents / 100 : 
+               webhookData.price_in_cents > 0 ? webhookData.price_in_cents / 100 :
+               webhookData.amount_cents > 0 ? webhookData.amount_cents / 100 : 0, // Gumroad sends 'price' in USD cents, convert to USD dollars
         currency: processed.currency,
         purchase_date: new Date().toISOString(),
         country: webhookData.country,
@@ -119,11 +129,16 @@ export async function POST(request: NextRequest) {
         .eq('date', today)
         .single()
 
+      const actualAmount = webhookData.price > 0 ? webhookData.price / 100 : 
+                          webhookData.price_cents > 0 ? webhookData.price_cents / 100 : 
+                          webhookData.price_in_cents > 0 ? webhookData.price_in_cents / 100 :
+                          webhookData.amount_cents > 0 ? webhookData.amount_cents / 100 : 0 // Convert USD cents to USD dollars
+      
       if (existingAnalytics) {
         await supabaseAdmin
           .from('daily_analytics')
           .update({
-            revenue: existingAnalytics.revenue + processed.amount,
+            revenue: existingAnalytics.revenue + actualAmount,
             purchases: existingAnalytics.purchases + 1,
             new_users: existingAnalytics.new_users + (!existingUser ? 1 : 0),
             updated_at: new Date().toISOString()
@@ -132,7 +147,7 @@ export async function POST(request: NextRequest) {
       } else {
         await supabaseAdmin.from('daily_analytics').insert({
           date: today,
-          revenue: processed.amount,
+          revenue: actualAmount,
           purchases: 1,
           refunds: 0,
           new_users: !existingUser ? 1 : 0,

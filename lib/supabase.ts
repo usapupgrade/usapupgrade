@@ -33,4 +33,13 @@ export const supabaseAdmin = supabaseServiceKey && supabaseUrl
         persistSession: false
       }
     })
-  : null
+  : createClient(
+      'https://cqgmgcgckncsadgwjtxr.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxZ21nY2dja25jc2FkZ3dqdHhyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDAxODE4NSwiZXhwIjoyMDY5NTk0MTg1fQ.vTuvjxJHVEUkLzJ7BxNoUnxZj3N5dyULaSTEPCKCAeg',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
