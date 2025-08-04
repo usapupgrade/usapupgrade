@@ -64,13 +64,25 @@ export default function AdminDashboard() {
       const response = await fetch('/api/admin/analytics')
       if (response.ok) {
         const data = await response.json()
-        setAnalytics(data.data || {
-          totalUsers: 0,
-          premiumUsers: 0,
-          totalRevenue: 0,
-          totalPurchases: 0,
-          recentPurchases: []
-        })
+        if (data.success && data.data) {
+          const overview = data.data.overview
+          setAnalytics({
+            totalUsers: overview.totalUsers || 0,
+            premiumUsers: overview.premiumUsers || 0,
+            totalRevenue: overview.totalRevenue || 0,
+            totalPurchases: overview.totalPurchases || 0,
+            recentPurchases: data.data.recentPurchases || []
+          })
+        } else {
+          // Fallback to empty data
+          setAnalytics({
+            totalUsers: 0,
+            premiumUsers: 0,
+            totalRevenue: 0,
+            totalPurchases: 0,
+            recentPurchases: []
+          })
+        }
       }
     } catch (error) {
       console.error('Failed to load analytics:', error)

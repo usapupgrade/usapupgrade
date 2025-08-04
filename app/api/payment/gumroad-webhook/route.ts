@@ -4,8 +4,12 @@ import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('=== GUMROAD WEBHOOK RECEIVED ===')
     const body = await request.text()
     const signature = request.headers.get('x-gumroad-signature') || ''
+    
+    console.log('Webhook body:', body)
+    console.log('Signature:', signature)
     
     // Verify webhook signature (basic implementation)
     if (!gumroad.verifyWebhookSignature(body, signature)) {
@@ -34,7 +38,7 @@ export async function POST(request: NextRequest) {
       refunded_at: formData.get('refunded_at') || undefined
     }
 
-    console.log('Gumroad webhook received:', webhookData)
+    console.log('Gumroad webhook data:', webhookData)
 
     // Process webhook data
     const processed = gumroad.processWebhook(webhookData)
@@ -140,6 +144,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Gumroad webhook: Successfully processed purchase for user:', user?.email)
+    console.log('=== GUMROAD WEBHOOK COMPLETED ===')
     return NextResponse.json({ success: true })
 
   } catch (error) {
