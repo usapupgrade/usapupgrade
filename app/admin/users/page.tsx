@@ -175,6 +175,7 @@ export default function UsersManagement() {
               <button
                 onClick={fetchUsers}
                 className="px-4 py-2 bg-accent-500 text-white rounded-lg hover:bg-accent-600 transition-colors flex items-center justify-center space-x-2 mr-2"
+                title="Refresh user data"
               >
                 <TrendingUp className="w-4 h-4" />
                 <span>Refresh</span>
