@@ -3,9 +3,9 @@
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, CheckCircle } from 'lucide-react'
-import { useUser } from '@/app/providers'
+import { useUser } from '../providers'
 import { toast } from 'sonner'
-import PremiumUpgrade from '@/app/components/PremiumUpgrade'
+import PremiumUpgrade from '../components/PremiumUpgrade'
 
 export default function PaymentPage() {
   const router = useRouter()
