@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
           .from('users')
                      .insert({
              email: processed.userEmail,
-             name: processed.userEmail.split('@')[0], // Use email prefix as name
+             name: processed.userEmail.split('@')[0] || 'Premium User', // Use email prefix as name
              subscription_status: 'premium',
              primary_goal: 'professional_communication', // Default value
              experience_level: 'beginner', // Default value

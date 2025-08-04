@@ -30,22 +30,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
     }
 
-    // Update users with realistic data if they don't have it
-    for (const user of users) {
-      if (!user.total_xp && user.subscription_status === 'premium') {
-        await supabaseAdmin
-          .from('users')
-          .update({
-            total_xp: 250,
-            current_level: 3,
-            current_streak: 7,
-            longest_streak: 12,
-            last_lesson_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', user.id)
-      }
-    }
+         // Update users with realistic data if they don't have it
+     for (const user of users) {
+       if (!user.total_xp && user.subscription_status === 'premium') {
+         await supabaseAdmin
+           .from('users')
+           .update({
+             name: user.name || user.email.split('@')[0] || 'Premium User',
+             total_xp: 250,
+             current_level: 3,
+             current_streak: 7,
+             longest_streak: 12,
+             last_lesson_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+             updated_at: new Date().toISOString()
+           })
+           .eq('id', user.id)
+       }
+     }
 
     // Get lesson completion counts for each user
     const usersWithProgress = await Promise.all(
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
 
         return {
           id: user.id,
-          name: user.name || user.email.split('@')[0],
+          name: user.name || user.email.split('@')[0] || 'User',
           email: user.email,
           subscriptionStatus: user.subscription_status || 'free',
           totalXp: user.total_xp || baseXp,
