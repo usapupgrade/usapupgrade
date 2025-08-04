@@ -39,19 +39,38 @@ export default function AdminDashboard() {
   const { isDarkMode, toggleDarkMode } = useDarkMode()
   const router = useRouter()
 
-  // Get live data from shared store
-  const { 
-    getAnalytics, 
-    getRevenueData, 
-    getUserGrowthData, 
-    getSubscriptionData 
-  } = useAdminStore()
+  // Get live data from shared store with error handling
+  let analytics: any, revenueData: any[] = [], userGrowthData: any[] = [], subscriptionData: any[] = []
+  
+  try {
+    const { 
+      getAnalytics, 
+      getRevenueData, 
+      getUserGrowthData, 
+      getSubscriptionData 
+    } = useAdminStore()
 
-  // Get real-time analytics data
-  const analytics = getAnalytics()
-  const revenueData = getRevenueData()
-  const userGrowthData = getUserGrowthData()
-  const subscriptionData = getSubscriptionData()
+    // Get real-time analytics data
+    analytics = getAnalytics()
+    revenueData = getRevenueData()
+    userGrowthData = getUserGrowthData()
+    subscriptionData = getSubscriptionData()
+  } catch (error) {
+    console.error('Admin store error:', error)
+    // Fallback data
+    analytics = {
+      totalUsers: 0,
+      activeUsers: { daily: 0, weekly: 0, monthly: 0 },
+      revenue: { monthly: 0, total: 0, growth: 0 },
+      subscriptions: { free: 0, premium: 0 },
+      conversions: { signupToPremium: 0, freeToPaid: 0 },
+      retention: { day1: 0, day7: 0, day30: 0 },
+      lessons: { completed: 0, averagePerUser: 0 }
+    }
+    revenueData = []
+    userGrowthData = []
+    subscriptionData = []
+  }
 
   useEffect(() => {
     // Check if admin is authenticated
