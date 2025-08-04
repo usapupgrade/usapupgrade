@@ -188,7 +188,7 @@ export default function PremiumUpgrade({
     <button
       onClick={handleUpgrade}
       disabled={isLoading}
-      className={`bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${className}`}
+      className={`bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg hover:shadow-xl ${className}`}
     >
       {isLoading ? (
         <>
