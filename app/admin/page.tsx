@@ -145,12 +145,7 @@ export default function AdminDashboard() {
                 >
                   Notifications
                 </button>
-                <button
-                  onClick={() => window.location.href = '/admin/vouchers'}
-                  className="px-3 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors text-sm"
-                >
-                  Vouchers
-                </button>
+
               </div>
 
               {/* Mobile Menu Button */}
@@ -222,12 +217,7 @@ export default function AdminDashboard() {
           >
             Notifications
           </button>
-          <button
-            onClick={() => window.location.href = '/admin/vouchers'}
-            className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            Vouchers
-          </button>
+          
         </div>
       </div>
     </header>
