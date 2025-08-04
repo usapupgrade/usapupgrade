@@ -83,8 +83,15 @@ export default function PaymentPage() {
                   </div>
                 </div>
                 <button
-                  onClick={() => {
-                    toast.success('Gumroad integration coming soon!')
+                  onClick={async () => {
+                    try {
+                      // Direct Gumroad integration
+                      const gumroadUrl = 'https://usapupgrade.gumroad.com/l/premiumaccess?wanted=true'
+                      window.open(gumroadUrl, '_blank')
+                      toast.success('Opening Gumroad checkout...')
+                    } catch (error) {
+                      toast.error('Failed to open checkout')
+                    }
                   }}
                   className="bg-white text-orange-600 px-6 py-2 rounded-lg font-semibold hover:bg-orange-50 transition-colors"
                 >
