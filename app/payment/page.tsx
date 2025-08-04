@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, Shield, CheckCircle, Tag, Plus, Crown } from 'lucide-react'
 import { useUser } from '../providers'
 import { toast } from 'sonner'
-import PremiumUpgrade from '../components/PremiumUpgrade'
+import PremiumUpgrade from '@/app/components/PremiumUpgrade'
 
 export default function PaymentPage() {
   const [voucherCode, setVoucherCode] = useState('')
