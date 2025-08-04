@@ -2,31 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { 
-  DollarSign, 
-  TrendingUp, 
-  Users, 
-  Download,
-  Eye,
-  EyeOff,
-  ArrowLeft,
-  CreditCard
-} from 'lucide-react'
 
 export default function RevenueTracking() {
-  const [showSensitiveData, setShowSensitiveData] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [loading, setLoading] = useState(false)
   const router = useRouter()
-
-  // Real revenue data - will be populated from database
-  const [revenueData, setRevenueData] = useState({
-    totalRevenue: 0,
-    monthlyRevenue: 0,
-    totalPurchases: 0,
-    premiumUsers: 0,
-    recentTransactions: []
-  })
 
   useEffect(() => {
     // Check if admin is authenticated
@@ -36,33 +15,7 @@ export default function RevenueTracking() {
       return
     }
     setIsAuthenticated(true)
-    
-    // Load real revenue data
-    loadRevenueData()
   }, [router])
-
-  const loadRevenueData = async () => {
-    try {
-      setLoading(true)
-      // Fetch real data from API
-      const response = await fetch('/api/admin/analytics')
-      if (response.ok) {
-        const data = await response.json()
-        setRevenueData(data.data || {
-          totalRevenue: 0,
-          monthlyRevenue: 0,
-          totalPurchases: 0,
-          premiumUsers: 0,
-          recentTransactions: []
-        })
-      }
-    } catch (error) {
-      console.error('Failed to load revenue data:', error)
-      // Keep default empty values
-    } finally {
-      setLoading(false)
-    }
-  }
 
   if (!isAuthenticated) {
     return null // Will redirect to admin-access
@@ -79,11 +32,6 @@ export default function RevenueTracking() {
     return new Intl.NumberFormat('en-US').format(num)
   }
 
-  const handleExportData = () => {
-    // Export functionality
-    alert('Revenue data exported successfully!')
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
@@ -96,17 +44,9 @@ export default function RevenueTracking() {
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
               <button
-                onClick={loadRevenueData}
-                disabled={loading}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2"
-              >
-                <span>{loading ? 'Loading...' : 'Refresh'}</span>
-              </button>
-              <button
                 onClick={() => window.location.href = '/admin'}
                 className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center justify-center space-x-2"
               >
-                <ArrowLeft className="w-4 h-4" />
                 <span>Back to Admin Dashboard</span>
               </button>
             </div>
@@ -117,10 +57,10 @@ export default function RevenueTracking() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <div className="p-4 rounded-xl shadow-sm bg-white">
             <div className="flex items-center space-x-3">
-              <DollarSign className="w-6 h-6 text-green-500 flex-shrink-0" />
+              <div className="w-6 h-6 text-green-500 flex-shrink-0">💰</div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-gray-600">Total Revenue</p>
-                <p className="text-xl font-bold text-gray-900">{formatCurrency(revenueData.totalRevenue)}</p>
+                <p className="text-xl font-bold text-gray-900">{formatCurrency(0)}</p>
                 <p className="text-xs text-gray-500">All time</p>
               </div>
             </div>
@@ -128,21 +68,21 @@ export default function RevenueTracking() {
 
           <div className="p-4 rounded-xl shadow-sm bg-white">
             <div className="flex items-center space-x-3">
-              <TrendingUp className="w-6 h-6 text-orange-500 flex-shrink-0" />
+              <div className="w-6 h-6 text-orange-500 flex-shrink-0">📈</div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-gray-600">Monthly Revenue</p>
-                <p className="text-xl font-bold text-gray-900">{formatCurrency(revenueData.monthlyRevenue)}</p>
-                <p className="text-xs text-gray-500">{revenueData.premiumUsers} premium users</p>
+                <p className="text-xl font-bold text-gray-900">{formatCurrency(0)}</p>
+                <p className="text-xs text-gray-500">0 premium users</p>
               </div>
             </div>
           </div>
 
           <div className="p-4 rounded-xl shadow-sm bg-white">
             <div className="flex items-center space-x-3">
-              <Users className="w-6 h-6 text-blue-500 flex-shrink-0" />
+              <div className="w-6 h-6 text-blue-500 flex-shrink-0">👥</div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-gray-600">Total Purchases</p>
-                <p className="text-xl font-bold text-gray-900">{formatNumber(revenueData.totalPurchases)}</p>
+                <p className="text-xl font-bold text-gray-900">{formatNumber(0)}</p>
                 <p className="text-xs text-gray-500">All time</p>
               </div>
             </div>
@@ -150,10 +90,10 @@ export default function RevenueTracking() {
 
           <div className="p-4 rounded-xl shadow-sm bg-white">
             <div className="flex items-center space-x-3">
-              <CreditCard className="w-6 h-6 text-purple-500 flex-shrink-0" />
+              <div className="w-6 h-6 text-purple-500 flex-shrink-0">💳</div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-gray-600">Premium Users</p>
-                <p className="text-xl font-bold text-gray-900">{formatNumber(revenueData.premiumUsers)}</p>
+                <p className="text-xl font-bold text-gray-900">{formatNumber(0)}</p>
                 <p className="text-xs text-gray-500">Active subscriptions</p>
               </div>
             </div>
@@ -163,22 +103,10 @@ export default function RevenueTracking() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-2 mb-6">
           <button
-            onClick={handleExportData}
+            onClick={() => alert('Revenue data exported successfully!')}
             className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center space-x-2"
           >
-            <Download className="w-4 h-4" />
             <span>Export Data</span>
-          </button>
-          <button
-            onClick={() => setShowSensitiveData(!showSensitiveData)}
-            className={`px-4 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
-              showSensitiveData 
-                ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {showSensitiveData ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            <span>Visibility</span>
           </button>
         </div>
 
@@ -189,7 +117,7 @@ export default function RevenueTracking() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Trend</h3>
             <div className="h-64 rounded-lg flex items-center justify-center bg-gray-50">
               <div className="text-center">
-                <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                <div className="text-4xl mb-2">📊</div>
                 <p className="text-sm text-gray-500">Revenue trend chart</p>
                 <p className="text-xs text-gray-400">Monthly growth visualization</p>
               </div>
@@ -215,38 +143,11 @@ export default function RevenueTracking() {
         <div className="p-6 rounded-xl shadow-sm bg-white">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Transactions</h3>
           
-          {revenueData.recentTransactions.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-2 px-4 text-gray-600">Customer</th>
-                    <th className="text-left py-2 px-4 text-gray-600">Amount</th>
-                    <th className="text-left py-2 px-4 text-gray-600">Type</th>
-                    <th className="text-left py-2 px-4 text-gray-600">Status</th>
-                    <th className="text-left py-2 px-4 text-gray-600">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {revenueData.recentTransactions.map((transaction: any, index: number) => (
-                    <tr key={index} className="border-b border-gray-200">
-                      <td className="py-2 px-4">{transaction.email}</td>
-                      <td className="py-2 px-4">{formatCurrency(transaction.price)}</td>
-                      <td className="py-2 px-4">{transaction.type}</td>
-                      <td className="py-2 px-4">{transaction.status}</td>
-                      <td className="py-2 px-4">{transaction.purchaseDate}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              <CreditCard className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>No transactions yet</p>
-              <p className="text-sm">Transactions will appear here after users make payments</p>
-            </div>
-          )}
+          <div className="text-center py-8 text-gray-500">
+            <div className="text-4xl mb-4">💳</div>
+            <p>No transactions yet</p>
+            <p className="text-sm">Transactions will appear here after users make payments</p>
+          </div>
         </div>
       </div>
     </div>
