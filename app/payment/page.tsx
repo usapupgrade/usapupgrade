@@ -2,9 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
-import { useUser } from '../providers'
+import { ArrowLeft, CheckCircle } from 'lucide-react'
+import { useUser } from '@/app/providers'
 import { toast } from 'sonner'
+import PremiumUpgrade from '@/app/components/PremiumUpgrade'
 
 export default function PaymentPage() {
   const router = useRouter()
@@ -41,19 +42,70 @@ export default function PaymentPage() {
           <p className="text-lg text-gray-600">Get lifetime access to all 120 professional lessons</p>
         </div>
 
-        {/* Temporary Simple Button */}
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-lg p-6 text-white text-center">
-            <h3 className="text-xl font-bold mb-4">Upgrade to Premium</h3>
-            <p className="mb-4">₱499 - One-time payment</p>
-            <button 
-              onClick={() => {
-                toast.success('Gumroad integration coming soon!')
-              }}
-              className="bg-white text-orange-600 px-6 py-2 rounded-lg font-semibold hover:bg-orange-50 transition-colors"
-            >
-              Upgrade Now
-            </button>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          {/* Gumroad Upgrade Component */}
+          <div className="max-w-2xl mx-auto lg:max-w-none">
+            <PremiumUpgrade
+              userEmail={user?.email}
+              variant="card"
+              onSuccess={handleUpgradeSuccess}
+              onError={handleUpgradeError}
+            />
+          </div>
+
+          {/* What You'll Get */}
+          <div className="bg-white rounded-2xl shadow-sm border p-6 sm:p-8 h-fit">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">What You'll Get</h2>
+            
+            <div className="space-y-4 mb-0">
+              <div className="flex items-start">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900">All 120 Professional Lessons</p>
+                  <p className="text-sm text-gray-600">Complete curriculum from basic to advanced</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900">Advanced Workplace Scenarios</p>
+                  <p className="text-sm text-gray-600">Real-world professional situations</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900">Leadership Communication</p>
+                  <p className="text-sm text-gray-600">Master leadership and management skills</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900">Conflict Resolution</p>
+                  <p className="text-sm text-gray-600">Handle difficult conversations professionally</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900">Certificate of Completion</p>
+                  <p className="text-sm text-gray-600">Downloadable PDF certificate</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900">Lifetime Access</p>
+                  <p className="text-sm text-gray-600">No recurring payments, access forever</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
