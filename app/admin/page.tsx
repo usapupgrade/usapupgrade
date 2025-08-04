@@ -29,6 +29,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useDarkMode } from '../providers'
 import ConversionAnalytics from '../components/ConversionAnalytics'
 import CertificationAnalytics from '../components/CertificationAnalytics'
+import GumroadAnalytics from '../components/GumroadAnalytics'
 import { useAdminStore } from '../data/adminData'
 
 export default function AdminDashboard() {
@@ -464,6 +465,16 @@ export default function AdminDashboard() {
           className="mt-6 sm:mt-8"
         >
           <CertificationAnalytics />
+        </motion.div>
+
+        {/* Gumroad Analytics */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.2 }}
+          className="mt-6 sm:mt-8"
+        >
+          <GumroadAnalytics />
         </motion.div>
       </div>
     </div>

@@ -3,17 +3,20 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
-# PayMongo Configuration
-PAYMONGO_SECRET_KEY=your_paymongo_secret_key
-PAYMONGO_PUBLIC_KEY=your_paymongo_public_key
-PAYMONGO_WEBHOOK_SECRET=your_paymongo_webhook_secret
-
-# Resend Email Configuration
-RESEND_API_KEY=your_resend_api_key
-
 # App Configuration
-NODE_ENV=production
-NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+NEXT_PUBLIC_APP_URL=https://usapupgrade.com
+
+# Gumroad Payment Processing
+NEXT_PUBLIC_GUMROAD_PRODUCT_ID=your_gumroad_product_id_here
+NEXT_PUBLIC_GUMROAD_PRODUCT_URL=https://gumroad.com/l/your_product_id
+NEXT_PUBLIC_GUMROAD_ENVIRONMENT=development
+
+# Email Configuration (Optional - for notifications)
+RESEND_API_KEY=your_resend_api_key
+RESEND_FROM_EMAIL=noreply@usapupgrade.com
+
+# Analytics (Optional)
+NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=your_ga_id
 
 # Admin Access
 ADMIN_CODE=convomaster2024 

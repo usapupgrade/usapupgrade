@@ -11,6 +11,7 @@ interface User {
   name: string
   avatar_url?: string
   subscription_status: 'free' | 'premium' | 'lifetime'
+  is_premium?: boolean
   
   // Trial system fields
   expires_at?: string

@@ -50,6 +50,14 @@ class PayMongoService {
       secretKey: process.env.PAYMONGO_SECRET_KEY || 'sk_test_demo',
       webhookSecret: process.env.PAYMONGO_WEBHOOK_SECRET || 'whsec_demo'
     }
+    
+    // Validate configuration
+    if (!this.config.publicKey || this.config.publicKey === 'pk_test_demo') {
+      console.warn('PayMongo: Using demo public key. Set NEXT_PUBLIC_PAYMONGO_PUBLIC_KEY for production.')
+    }
+    if (!this.config.secretKey || this.config.secretKey === 'sk_test_demo') {
+      console.warn('PayMongo: Using demo secret key. Set PAYMONGO_SECRET_KEY for production.')
+    }
   }
 
   private getAuthHeaders(useSecretKey = false) {
@@ -109,8 +117,8 @@ class PayMongoService {
         status: 'awaiting_payment_method',
         client_key: 'pi_mock_client_key',
         redirect: {
-          success: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success`,
-          failed: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/failed`
+          success: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success`,
+          failed: `${process.env.NEXT_PUBLIC_APP_URL}/payment/failed`
         }
       }
     }
@@ -133,8 +141,8 @@ class PayMongoService {
               currency: 'PHP',
               type: paymentMethod,
               redirect: {
-                success: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?pi=${paymentIntentId}`,
-                failed: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/failed?pi=${paymentIntentId}`
+                success: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success?pi=${paymentIntentId}`,
+                failed: `${process.env.NEXT_PUBLIC_APP_URL}/payment/failed?pi=${paymentIntentId}`
               }
             }
           }
