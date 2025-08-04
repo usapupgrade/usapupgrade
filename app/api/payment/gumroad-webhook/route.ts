@@ -86,15 +86,9 @@ export async function POST(request: NextRequest) {
 
       // Update user to premium if not already
       const updateData: any = {
-        updated_at: new Date().toISOString()
-      }
-      
-      // Update both subscription_status and is_premium for compatibility
-      if (user.subscription_status !== 'premium') {
-        updateData.subscription_status = 'premium'
-      }
-      if (!user.is_premium) {
-        updateData.is_premium = true
+        updated_at: new Date().toISOString(),
+        subscription_status: 'premium',
+        is_premium: true
       }
       
       await supabaseAdmin

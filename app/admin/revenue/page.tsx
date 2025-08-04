@@ -198,11 +198,29 @@ export default function RevenueTracking() {
         <div className="p-6 rounded-xl shadow-sm bg-white">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Transactions</h3>
           
-          <div className="text-center py-8 text-gray-500">
-            <div className="text-4xl mb-4">💳</div>
-            <p>No transactions yet</p>
-            <p className="text-sm">Transactions will appear here after users make payments</p>
-          </div>
+          {revenueData.recentTransactions.length > 0 ? (
+            <div className="space-y-4">
+              {revenueData.recentTransactions.map((transaction: any, index: number) => (
+                <div key={index} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900">{transaction.email}</p>
+                    <p className="text-sm text-gray-500">Sale ID: {transaction.saleId}</p>
+                    <p className="text-xs text-gray-400">{new Date(transaction.purchaseDate).toLocaleDateString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-green-600">{formatCurrency(transaction.price)}</p>
+                    <p className="text-xs text-gray-500">{transaction.currency}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <div className="text-4xl mb-4">💳</div>
+              <p>No transactions yet</p>
+              <p className="text-sm">Transactions will appear here after users make payments</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

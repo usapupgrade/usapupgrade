@@ -54,7 +54,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate metrics
-    const totalRevenue = purchases.reduce((sum, purchase) => sum + parseFloat(purchase.price), 0)
+    const totalRevenue = purchases.reduce((sum, purchase) => {
+      const price = typeof purchase.price === 'string' ? parseFloat(purchase.price) : purchase.price
+      return sum + (price || 0)
+    }, 0)
     const totalPurchases = purchases.length
     const newUserPurchases = purchases.filter(p => p.is_new_user).length
     const existingUserPurchases = totalPurchases - newUserPurchases

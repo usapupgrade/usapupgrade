@@ -34,14 +34,46 @@ export default function UsersManagement() {
   const { isDarkMode, toggleDarkMode } = useDarkMode()
   const router = useRouter()
 
-  // Get live data from shared store
-  const { 
-    users, 
-    getUserStats, 
-    sendMessageToUser, 
-    updateUserActivity, 
-    updateUserSubscription 
-  } = useAdminStore()
+  // State for real user data
+  const [users, setUsers] = useState<User[]>([])
+  const [stats, setStats] = useState({
+    total: 0,
+    free: 0,
+    premium: 0,
+    active: 0
+  })
+  const [loading, setLoading] = useState(true)
+
+  // Fetch real user data
+  const fetchUsers = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/admin/users')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setUsers(data.data.users)
+          setStats(data.data.stats)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch users:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Mock functions for compatibility
+  const getUserStats = () => stats
+  const sendMessageToUser = (userId: string, message: string) => {
+    console.log(`Message sent to user ${userId}: ${message}`)
+  }
+  const updateUserActivity = (userId: string, activity: string) => {
+    console.log(`User ${userId} activity updated: ${activity}`)
+  }
+  const updateUserSubscription = (userId: string, status: 'free' | 'premium') => {
+    console.log(`User ${userId} subscription updated to ${status}`)
+  }
 
   useEffect(() => {
     // Check if admin is authenticated
@@ -51,6 +83,9 @@ export default function UsersManagement() {
       return
     }
     setIsAuthenticated(true)
+    
+    // Fetch users data
+    fetchUsers()
   }, [router])
 
   if (!isAuthenticated) {
@@ -78,7 +113,7 @@ export default function UsersManagement() {
       }
     })
 
-  const stats = getUserStats()
+  // Use the stats from state
 
   const handleViewUser = (user: User) => {
     setSelectedUser(user)
