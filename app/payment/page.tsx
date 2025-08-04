@@ -1,12 +1,10 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { useUser } from '../providers'
 import { toast } from 'sonner'
-import PremiumUpgrade from '../components/PremiumUpgrade'
 
 export default function PaymentPage() {
   const router = useRouter()
@@ -43,14 +41,20 @@ export default function PaymentPage() {
           <p className="text-lg text-gray-600">Get lifetime access to all 120 professional lessons</p>
         </div>
 
-        {/* Gumroad Upgrade Component */}
+        {/* Temporary Simple Button */}
         <div className="max-w-2xl mx-auto">
-          <PremiumUpgrade
-            userEmail={user?.email}
-            variant="card"
-            onSuccess={handleUpgradeSuccess}
-            onError={handleUpgradeError}
-          />
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-lg p-6 text-white text-center">
+            <h3 className="text-xl font-bold mb-4">Upgrade to Premium</h3>
+            <p className="mb-4">₱499 - One-time payment</p>
+            <button 
+              onClick={() => {
+                toast.success('Gumroad integration coming soon!')
+              }}
+              className="bg-white text-orange-600 px-6 py-2 rounded-lg font-semibold hover:bg-orange-50 transition-colors"
+            >
+              Upgrade Now
+            </button>
+          </div>
         </div>
       </div>
     </div>
