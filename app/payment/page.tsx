@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { ArrowLeft, CheckCircle } from 'lucide-react'
 import { useUser } from '../providers'
 import { toast } from 'sonner'
-import PremiumUpgrade from '../components/PremiumUpgrade'
 
 export default function PaymentPage() {
   const router = useRouter()
@@ -45,12 +44,54 @@ export default function PaymentPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* Gumroad Upgrade Component */}
           <div className="max-w-2xl mx-auto lg:max-w-none">
-            <PremiumUpgrade
-              userEmail={user?.email}
-              variant="card"
-              onSuccess={handleUpgradeSuccess}
-              onError={handleUpgradeError}
-            />
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-lg p-6 text-white">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                  <span className="text-orange-500 font-bold">₱</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">Upgrade to Premium</h3>
+                  <p className="text-orange-100">Unlock all 120 lessons and advanced features</p>
+                </div>
+              </div>
+              
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  <span>Access to all 120 lessons</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  <span>Advanced conversation scenarios</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  <span>Detailed progress analytics</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  <span>Lifetime updates & new content</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-2xl font-bold">₱499</span>
+                  <span className="text-orange-100 ml-1">one-time payment</span>
+                  <div className="text-xs text-orange-200 mt-1">
+                    ⚠️ Price increases to ₱799 after 1 month
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    toast.success('Gumroad integration coming soon!')
+                  }}
+                  className="bg-white text-orange-600 px-6 py-2 rounded-lg font-semibold hover:bg-orange-50 transition-colors"
+                >
+                  Upgrade Now
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* What You'll Get */}
