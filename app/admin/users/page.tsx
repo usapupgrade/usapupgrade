@@ -48,12 +48,21 @@ export default function UsersManagement() {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/admin/users?t=${Date.now()}`)
+      // Force fresh data with timestamp and cache-busting headers
+      const response = await fetch(`/api/admin/users?t=${Date.now()}`, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      })
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
           setUsers(data.data.users)
           setStats(data.data.stats)
+          console.log('Updated users data:', data.data)
         }
       }
     } catch (error) {
@@ -84,8 +93,10 @@ export default function UsersManagement() {
     }
     setIsAuthenticated(true)
     
-    // Fetch users data
-    fetchUsers()
+    // Fetch users data with a small delay to ensure fresh data
+    setTimeout(() => {
+      fetchUsers()
+    }, 100)
   }, [router])
 
   if (!isAuthenticated) {
