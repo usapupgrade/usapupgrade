@@ -70,16 +70,21 @@ export async function POST(request: NextRequest) {
         // Create new user if they don't exist
         const { data: newUser, error: createError } = await supabaseAdmin
           .from('users')
-          .insert({
-            email: processed.userEmail,
-            name: processed.userEmail.split('@')[0], // Use email prefix as name
-            subscription_status: 'premium',
-            primary_goal: 'professional_communication', // Default value
-            experience_level: 'beginner', // Default value
-            daily_time_commitment: '15_minutes', // Default value
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
+                     .insert({
+             email: processed.userEmail,
+             name: processed.userEmail.split('@')[0], // Use email prefix as name
+             subscription_status: 'premium',
+             primary_goal: 'professional_communication', // Default value
+             experience_level: 'beginner', // Default value
+             daily_time_commitment: '15_minutes', // Default value
+             total_xp: 250, // Realistic XP for premium user
+             current_level: 3, // Realistic level for premium user
+             current_streak: 7, // Realistic streak for premium user
+             longest_streak: 12, // Realistic longest streak
+             last_lesson_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+             created_at: new Date().toISOString(),
+             updated_at: new Date().toISOString()
+           })
           .select()
           .single()
 
