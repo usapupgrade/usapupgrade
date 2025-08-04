@@ -30,7 +30,7 @@ export default function PaymentPage() {
               <ArrowLeft className="w-5 h-5 mr-2" />
               Back to Home
             </Link>
-            <div className="text-xl font-bold text-gray-900">UsapUpgrade</div>
+            <div className="text-xl font-bold text-gray-900 absolute left-1/2 transform -translate-x-1/2">UsapUpgrade</div>
             <div className="w-20"></div>
           </div>
         </div>
@@ -52,8 +52,7 @@ export default function PaymentPage() {
           </h1>
           
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Join thousands of professionals who've transformed their workplace communication skills. 
-            Get immediate, lifetime access to our complete 120-lesson curriculum.
+            Get immediate, lifetime access to our complete 120-lesson curriculum designed to transform your workplace communication skills.
           </p>
         </div>
 
@@ -104,7 +103,7 @@ export default function PaymentPage() {
                     variant="button"
                     onSuccess={handleUpgradeSuccess}
                     onError={handleUpgradeError}
-                    className="bg-white text-blue-600 px-8 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl"
+                    className="bg-white text-blue-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl border-2 border-white"
                   />
                 </div>
               </div>
@@ -138,7 +137,7 @@ export default function PaymentPage() {
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <p className="font-semibold text-gray-900">Master Every Conversation</p>
+                    <p className="font-semibold text-gray-900">Upgrade Every Conversation</p>
                     <p className="text-sm text-gray-600">From basic greetings to complex leadership discussions</p>
                   </div>
                 </div>
@@ -163,35 +162,8 @@ export default function PaymentPage() {
                   <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
                     <p className="font-semibold text-gray-900">Earn Recognition</p>
-                    <p className="text-sm text-gray-600">Get a professional certificate to showcase your expertise</p>
+                    <p className="text-sm text-gray-600">Get a professional certificate to showcase your leveled up skills</p>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Social Proof */}
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-200 p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Award className="w-5 h-5 text-green-600" />
-                Why Choose UsapUpgrade
-              </h3>
-              
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                  <span className="text-gray-700">Comprehensive 120-lesson curriculum</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                  <span className="text-gray-700">Real workplace scenarios</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                  <span className="text-gray-700">Lifetime access guarantee</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                  <span className="text-gray-700">Professional certificate included</span>
                 </div>
               </div>
             </div>
@@ -201,7 +173,7 @@ export default function PaymentPage() {
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-600 mb-2">⚡ Limited Time</div>
                 <p className="text-sm text-orange-700">
-                  Price increases to ₱799 after this week. 
+                  Price increases to ₱799 after 30 days. 
                   Lock in your lifetime access today.
                 </p>
               </div>
