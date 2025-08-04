@@ -33,10 +33,13 @@ export async function GET(request: NextRequest) {
          // Update users with realistic data if they don't have it
      for (const user of users) {
        if (user.subscription_status === 'premium') {
+         // Force update name if it's just "User"
+         const properName = user.name === 'User' ? (user.email.split('@')[0] || 'Premium User') : (user.name || user.email.split('@')[0] || 'Premium User')
+         
          await supabaseAdmin
            .from('users')
            .update({
-             name: user.name || user.email.split('@')[0] || 'Premium User',
+             name: properName,
              total_xp: user.total_xp || 250,
              current_level: user.current_level || 3,
              current_streak: user.current_streak || 7,

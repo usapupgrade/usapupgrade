@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <p>Go to your live admin dashboard and open browser console (F12), then paste this code:</p>
+    <textarea id="code" rows="10" cols="80" readonly>
+fetch('/api/admin/users')
+  .then(response => response.json())
+  .then(data => {
+    console.log('API Response:', data);
+    if (data.success && data.data.users) {
+      console.log('Users:', data.data.users);
+      data.data.users.forEach(user => {
+        console.log('User:', user.name, user.email, user.subscriptionStatus);
+      });
+    }
+  })
+  .catch(error => console.error('Error:', error));
+    </textarea>
+    <br><br>
+    <button onclick="copyCode()">Copy Code</button>
+    <p>Instructions:</p>
+    <ol>
+        <li>Go to your live admin dashboard</li>
+        <li>Press F12 to open browser console</li>
+        <li>Paste the code above</li>
+        <li>Press Enter</li>
+        <li>Tell me what you see in the console</li>
+    </ol>
+
+    <script>
+        function copyCode() {
+            document.getElementById('code').select();
+            document.execCommand('copy');
+            alert('Code copied!');
+        }
+    </script>
+</body>
+</html> 
