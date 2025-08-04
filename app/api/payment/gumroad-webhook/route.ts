@@ -65,7 +65,11 @@ export async function POST(request: NextRequest) {
           .from('users')
           .insert({
             email: processed.userEmail,
+            name: processed.userEmail.split('@')[0], // Use email prefix as name
             subscription_status: 'premium',
+            primary_goal: 'professional_communication', // Default value
+            experience_level: 'beginner', // Default value
+            daily_time_commitment: '15_minutes', // Default value
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           })
