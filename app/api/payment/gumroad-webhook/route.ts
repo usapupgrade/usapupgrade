@@ -8,6 +8,13 @@ export async function POST(request: NextRequest) {
     const body = await request.text()
     const signature = request.headers.get('x-gumroad-signature') || ''
     
+    // Add retry logic for webhook processing
+    const maxRetries = 3
+    let retryCount = 0
+    
+    const processWebhook = async () => {
+      try {
+    
     console.log('Webhook body:', body)
     console.log('Signature:', signature)
     
