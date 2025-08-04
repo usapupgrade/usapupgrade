@@ -3,90 +3,14 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Shield, CheckCircle, Tag, Plus, Crown } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { useUser } from '../providers'
 import { toast } from 'sonner'
-import PremiumUpgrade from '@/app/components/PremiumUpgrade'
+import PremiumUpgrade from '../components/PremiumUpgrade'
 
 export default function PaymentPage() {
-  const [voucherCode, setVoucherCode] = useState('')
-  const [isApplyingVoucher, setIsApplyingVoucher] = useState(false)
-  const [appliedVoucher, setAppliedVoucher] = useState<{code: string, discount: number} | null>(null)
-  const [showVoucherInput, setShowVoucherInput] = useState(false)
   const router = useRouter()
   const { user } = useUser()
-
-  const originalPrice = 1999
-  const discountedPrice = 499
-  const finalPrice = appliedVoucher ? Math.max(discountedPrice - appliedVoucher.discount, 0) : discountedPrice
-
-  const handleApplyVoucher = async () => {
-    if (!voucherCode.trim()) {
-      toast.error('Please enter a voucher code')
-      return
-    }
-
-    setIsApplyingVoucher(true)
-    
-    try {
-      // Call the API to validate voucher
-      const response = await fetch('/api/vouchers/validate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          voucherCode: voucherCode.trim(),
-          userId: user?.id || 'anonymous',
-          orderAmount: discountedPrice
-        })
-      })
-
-      const result = await response.json()
-
-      if (result.valid) {
-        setAppliedVoucher({ 
-          code: voucherCode.toUpperCase(), 
-          discount: result.discount_amount 
-        })
-        toast.success(`Voucher applied! You saved ₱${result.discount_amount}`)
-      } else {
-        // For demo purposes, allow a demo voucher code
-        if (voucherCode.trim().toUpperCase() === 'DEMO50') {
-          const demoDiscount = 50
-          setAppliedVoucher({ 
-            code: 'DEMO50', 
-            discount: demoDiscount 
-          })
-          toast.success(`Demo voucher applied! You saved ₱${demoDiscount}`)
-        } else {
-          toast.error(result.error || 'Invalid voucher code')
-        }
-      }
-    } catch (error) {
-      console.error('Voucher validation error:', error)
-      // For demo purposes, allow a demo voucher code even if API fails
-      if (voucherCode.trim().toUpperCase() === 'DEMO50') {
-        const demoDiscount = 50
-        setAppliedVoucher({ 
-          code: 'DEMO50', 
-          discount: demoDiscount 
-        })
-        toast.success(`Demo voucher applied! You saved ₱${demoDiscount}`)
-      } else {
-        toast.error('Failed to validate voucher. Please try again.')
-      }
-    } finally {
-      setIsApplyingVoucher(false)
-    }
-  }
-
-  const handleRemoveVoucher = () => {
-    setAppliedVoucher(null)
-    setVoucherCode('')
-    setShowVoucherInput(false)
-    toast.success('Voucher removed')
-  }
 
   const handleUpgradeSuccess = () => {
     toast.success('Payment successful! Welcome to premium! 🎉')
