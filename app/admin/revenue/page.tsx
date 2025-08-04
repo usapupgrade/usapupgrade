@@ -5,7 +5,17 @@ import { useRouter } from 'next/navigation'
 
 export default function RevenueTracking() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
+
+  // Real revenue data - will be populated from database
+  const [revenueData, setRevenueData] = useState({
+    totalRevenue: 0,
+    monthlyRevenue: 0,
+    totalPurchases: 0,
+    premiumUsers: 0,
+    recentTransactions: []
+  })
 
   useEffect(() => {
     // Check if admin is authenticated
@@ -15,7 +25,45 @@ export default function RevenueTracking() {
       return
     }
     setIsAuthenticated(true)
+    
+    // Load real revenue data
+    loadRevenueData()
   }, [router])
+
+  const loadRevenueData = async () => {
+    try {
+      setLoading(true)
+      // Fetch real data from API
+      const response = await fetch('/api/admin/analytics')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.data) {
+          const overview = data.data.overview
+          setRevenueData({
+            totalRevenue: overview.totalRevenue || 0,
+            monthlyRevenue: overview.totalRevenue || 0, // For now, use total as monthly
+            totalPurchases: overview.totalPurchases || 0,
+            premiumUsers: overview.premiumUsers || 0,
+            recentTransactions: data.data.recentPurchases || []
+          })
+        } else {
+          // Fallback to empty data
+          setRevenueData({
+            totalRevenue: 0,
+            monthlyRevenue: 0,
+            totalPurchases: 0,
+            premiumUsers: 0,
+            recentTransactions: []
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load revenue data:', error)
+      // Keep default empty values
+    } finally {
+      setLoading(false)
+    }
+  }
 
   if (!isAuthenticated) {
     return null // Will redirect to admin-access
@@ -44,6 +92,13 @@ export default function RevenueTracking() {
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
               <button
+                onClick={loadRevenueData}
+                disabled={loading}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2"
+              >
+                <span>{loading ? 'Loading...' : 'Refresh'}</span>
+              </button>
+              <button
                 onClick={() => window.location.href = '/admin'}
                 className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center justify-center space-x-2"
               >
@@ -60,7 +115,7 @@ export default function RevenueTracking() {
               <div className="w-6 h-6 text-green-500 flex-shrink-0">💰</div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-gray-600">Total Revenue</p>
-                <p className="text-xl font-bold text-gray-900">{formatCurrency(0)}</p>
+                <p className="text-xl font-bold text-gray-900">{formatCurrency(revenueData.totalRevenue)}</p>
                 <p className="text-xs text-gray-500">All time</p>
               </div>
             </div>
@@ -71,8 +126,8 @@ export default function RevenueTracking() {
               <div className="w-6 h-6 text-orange-500 flex-shrink-0">📈</div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-gray-600">Monthly Revenue</p>
-                <p className="text-xl font-bold text-gray-900">{formatCurrency(0)}</p>
-                <p className="text-xs text-gray-500">0 premium users</p>
+                <p className="text-xl font-bold text-gray-900">{formatCurrency(revenueData.monthlyRevenue)}</p>
+                <p className="text-xs text-gray-500">{revenueData.premiumUsers} premium users</p>
               </div>
             </div>
           </div>
@@ -82,7 +137,7 @@ export default function RevenueTracking() {
               <div className="w-6 h-6 text-blue-500 flex-shrink-0">👥</div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-gray-600">Total Purchases</p>
-                <p className="text-xl font-bold text-gray-900">{formatNumber(0)}</p>
+                <p className="text-xl font-bold text-gray-900">{formatNumber(revenueData.totalPurchases)}</p>
                 <p className="text-xs text-gray-500">All time</p>
               </div>
             </div>
@@ -93,7 +148,7 @@ export default function RevenueTracking() {
               <div className="w-6 h-6 text-purple-500 flex-shrink-0">💳</div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-gray-600">Premium Users</p>
-                <p className="text-xl font-bold text-gray-900">{formatNumber(0)}</p>
+                <p className="text-xl font-bold text-gray-900">{formatNumber(revenueData.premiumUsers)}</p>
                 <p className="text-xs text-gray-500">Active subscriptions</p>
               </div>
             </div>
