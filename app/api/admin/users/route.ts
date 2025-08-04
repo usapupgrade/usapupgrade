@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     const usersWithProgress = await Promise.all(
       users.map(async (user) => {
         // Get completed lessons count
-        const { count: completedLessons } = await supabaseAdmin
+        const { count: completedLessons } = await supabaseAdmin!
           .from('user_progress')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', user.id)
