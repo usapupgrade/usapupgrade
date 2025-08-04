@@ -33,12 +33,22 @@ export async function GET(request: NextRequest) {
          // Update users with realistic data if they don't have it
      for (const user of users) {
        if (user.subscription_status === 'premium') {
-         // Force update name if it's just "User"
-         const properName = user.name === 'User' ? (user.email.split('@')[0] || 'Premium User') : (user.name || user.email.split('@')[0] || 'Premium User')
+         // Fix users with empty email or generic names
+         let properEmail = user.email
+         let properName = user.name
+         
+         if (!properEmail || properEmail === '') {
+           properEmail = 'admin@usapupgrade.com' // Default email for existing users
+         }
+         
+         if (properName === 'User' || properName === 'Premium User' || !properName) {
+           properName = properEmail.split('@')[0] || 'Premium User'
+         }
          
          await supabaseAdmin
            .from('users')
            .update({
+             email: properEmail,
              name: properName,
              total_xp: user.total_xp || 250,
              current_level: user.current_level || 3,
