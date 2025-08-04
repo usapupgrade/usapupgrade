@@ -5,15 +5,15 @@ import { supabaseAdmin } from '@/lib/supabase'
 export async function POST(request: NextRequest) {
   try {
     console.log('=== GUMROAD WEBHOOK RECEIVED ===')
-    const body = await request.text()
-    const signature = request.headers.get('x-gumroad-signature') || ''
     
     // Add retry logic for webhook processing
     const maxRetries = 3
     let retryCount = 0
     
-    const processWebhook = async () => {
+    while (retryCount < maxRetries) {
       try {
+        const body = await request.text()
+        const signature = request.headers.get('x-gumroad-signature') || ''
     
     console.log('Webhook body:', body)
     console.log('Signature:', signature)
@@ -168,9 +168,23 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log('Gumroad webhook: Successfully processed purchase for user:', user?.email)
-    console.log('=== GUMROAD WEBHOOK COMPLETED ===')
-    return NextResponse.json({ success: true })
+        console.log('Gumroad webhook: Successfully processed purchase for user:', user?.email)
+        console.log('=== GUMROAD WEBHOOK COMPLETED ===')
+        return NextResponse.json({ success: true })
+        
+      } catch (webhookError) {
+        retryCount++
+        console.error(`Gumroad webhook attempt ${retryCount} failed:`, webhookError)
+        
+        if (retryCount >= maxRetries) {
+          console.error('Gumroad webhook: Max retries reached')
+          return NextResponse.json({ error: 'Webhook processing failed after retries' }, { status: 500 })
+        }
+        
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount))
+      }
+    }
 
   } catch (error) {
     console.error('Gumroad webhook error:', error)

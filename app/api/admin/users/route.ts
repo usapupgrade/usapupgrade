@@ -7,24 +7,36 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Database connection failed' }, { status: 500 })
     }
 
-         // Fetch all users with their progress data (limit for performance)
-     const { data: users, error: usersError } = await supabaseAdmin
-       .from('users')
-       .select(`
-         id,
-         email,
-         name,
-         subscription_status,
-         total_xp,
-         current_level,
-         current_streak,
-         longest_streak,
-         last_lesson_date,
-         created_at,
-         updated_at
-       `)
-       .order('created_at', { ascending: false })
-       .limit(1000) // Limit to prevent performance issues
+    // Get pagination parameters
+    const page = parseInt(request.nextUrl.searchParams.get('page') || '1')
+    const limit = parseInt(request.nextUrl.searchParams.get('limit') || '50')
+    const offset = (page - 1) * limit
+
+    // Fetch users with pagination
+    const { data: users, error: usersError } = await supabaseAdmin
+      .from('users')
+      .select(`
+        id,
+        email,
+        name,
+        subscription_status,
+        total_xp,
+        current_level,
+        current_streak,
+        longest_streak,
+        last_lesson_date,
+        created_at,
+        updated_at
+      `)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
+
+    // Get total count for pagination
+    const { count: totalUsers } = await supabaseAdmin
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+    
+    const total = totalUsers || 0
 
     if (usersError) {
       console.error('Error fetching users:', usersError)
@@ -126,7 +138,13 @@ export async function GET(request: NextRequest) {
       success: true,
       data: {
         users: usersWithProgress,
-        stats
+        stats,
+        pagination: {
+          page,
+          limit,
+          total: total,
+          totalPages: Math.ceil(total / limit)
+        }
       }
     })
 

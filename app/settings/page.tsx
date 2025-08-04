@@ -237,11 +237,33 @@ export default function SettingsPage() {
                     <div className="space-y-4 sm:space-y-6">
                       <div>
                         <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
+                          Display Name
+                        </label>
+                        <input
+                          type="text"
+                          value={user?.name || ''}
+                          onChange={(e) => {
+                            // Update user name in database
+                            if (user) {
+                              fetch('/api/users/update-name', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ name: e.target.value })
+                              })
+                            }
+                          }}
+                          className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg text-sm sm:text-base"
+                          placeholder="Enter your display name"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">This name will appear in your profile and admin dashboard</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                           Email
                         </label>
                         <input
                           type="email"
-                          value="demo@convomaster.app"
+                          value={user?.email || "demo@convomaster.app"}
                           disabled
                           className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 text-sm sm:text-base"
                         />
