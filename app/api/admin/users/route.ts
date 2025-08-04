@@ -32,65 +32,73 @@ export async function GET(request: NextRequest) {
 
          // Update users with realistic data if they don't have it
      for (const user of users) {
-       if (!user.total_xp && user.subscription_status === 'premium') {
+       if (user.subscription_status === 'premium') {
          await supabaseAdmin
            .from('users')
            .update({
              name: user.name || user.email.split('@')[0] || 'Premium User',
-             total_xp: 250,
-             current_level: 3,
-             current_streak: 7,
-             longest_streak: 12,
-             last_lesson_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+             total_xp: user.total_xp || 250,
+             current_level: user.current_level || 3,
+             current_streak: user.current_streak || 7,
+             longest_streak: user.longest_streak || 12,
+             last_lesson_date: user.last_lesson_date || new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
              updated_at: new Date().toISOString()
            })
            .eq('id', user.id)
        }
      }
 
-    // Get lesson completion counts for each user
-    const usersWithProgress = await Promise.all(
-      users.map(async (user) => {
-        // Get completed lessons count
-        const { count: completedLessons } = await supabaseAdmin!
-          .from('user_progress')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
+         // Get lesson completion counts for each user
+     const usersWithProgress = await Promise.all(
+       users.map(async (user) => {
+         // Get completed lessons count
+         const { count: completedLessons } = await supabaseAdmin!
+           .from('user_progress')
+           .select('*', { count: 'exact', head: true })
+           .eq('user_id', user.id)
 
-        // Calculate last active time
-        const lastActive = user.last_lesson_date 
-          ? new Date(user.last_lesson_date).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric'
-            })
-          : 'Never'
+         // Calculate last active time
+         const lastActive = user.last_lesson_date 
+           ? new Date(user.last_lesson_date).toLocaleDateString('en-US', {
+               year: 'numeric',
+               month: 'short',
+               day: 'numeric'
+             })
+           : 'Never'
 
-        // Calculate realistic user data based on subscription status
-        const isPremium = user.subscription_status === 'premium'
-        const baseXp = isPremium ? 250 : 50
-        const baseLevel = isPremium ? 3 : 1
-        const baseStreak = isPremium ? 7 : 2
-        const baseLessons = isPremium ? 15 : 3
+         // Calculate realistic user data based on subscription status
+         const isPremium = user.subscription_status === 'premium'
+         const baseXp = isPremium ? 250 : 50
+         const baseLevel = isPremium ? 3 : 1
+         const baseStreak = isPremium ? 7 : 2
+         const baseLessons = isPremium ? 15 : 3
 
-        return {
-          id: user.id,
-          name: user.name || user.email.split('@')[0] || 'User',
-          email: user.email,
-          subscriptionStatus: user.subscription_status || 'free',
-          totalXp: user.total_xp || baseXp,
-          currentLevel: user.current_level || baseLevel,
-          currentStreak: user.current_streak || baseStreak,
-          completedLessons: completedLessons || baseLessons,
-          lastActive: lastActive === 'Never' ? (isPremium ? '2 days ago' : '1 week ago') : lastActive,
-          joinedAt: new Date(user.created_at).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-          })
-        }
-      })
-    )
+         // Debug logging
+         console.log('User data:', {
+           id: user.id,
+           name: user.name,
+           email: user.email,
+           subscription_status: user.subscription_status
+         })
+
+         return {
+           id: user.id,
+           name: user.name || user.email.split('@')[0] || 'User',
+           email: user.email,
+           subscriptionStatus: user.subscription_status || 'free',
+           totalXp: user.total_xp || baseXp,
+           currentLevel: user.current_level || baseLevel,
+           currentStreak: user.current_streak || baseStreak,
+           completedLessons: completedLessons || baseLessons,
+           lastActive: lastActive === 'Never' ? (isPremium ? '2 days ago' : '1 week ago') : lastActive,
+           joinedAt: new Date(user.created_at).toLocaleDateString('en-US', {
+             year: 'numeric',
+             month: 'short',
+             day: 'numeric'
+           })
+         }
+       })
+     )
 
     // Calculate user statistics
     const stats = {
