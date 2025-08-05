@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Star, Users, BookOpen, Target, Award, Zap, Calendar } from 'lucide-react'
 import { useUser } from '../../providers'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
@@ -105,7 +105,7 @@ export default function SignUpPage() {
       </header>
 
       <div className="max-w-6xl mx-auto px-4 py-8 sm:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Column - Sign Up Form */}
           <div className="flex items-center justify-center">
             <motion.div
@@ -116,16 +116,20 @@ export default function SignUpPage() {
             >
               {/* Welcome Section */}
               <div className="text-center mb-8">
-                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                  <Zap className="w-4 h-4" />
                   Start Your Journey
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                  Start Your Professional Journey
                 </h1>
                 <p className="text-lg text-gray-600 mb-8">
-                  Join thousands of Filipinos mastering professional conversations
+                  Upgrade your professional conversations in just 5 minutes daily
                 </p>
               </div>
 
               {/* Sign Up Form */}
-              <div className="bg-white rounded-2xl shadow-xl p-8">
+              <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
                 {/* Google Sign Up */}
                 <button
                   onClick={handleGoogleSignUp}
@@ -169,77 +173,84 @@ export default function SignUpPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="w-full max-w-md space-y-6"
+              className="w-full max-w-lg space-y-6"
             >
-              {/* Start Your Journey Card */}
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl shadow-lg p-6 border border-blue-100">
-                <div className="flex items-center mb-4">
-                  <h2 className="text-xl font-bold text-gray-900">Start Your Professional Conversation Journey!</h2>
-                  <span className="ml-2">🎉</span>
+              {/* Hero Benefits Card */}
+              <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl shadow-xl p-8 text-white">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mr-4">
+                    <Star className="w-6 h-6 text-yellow-300" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold">30 FREE Lessons</h2>
+                    <p className="text-blue-100">Start building confidence today</p>
+                  </div>
                 </div>
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    </div>
-                    <span className="text-sm text-gray-700">30 FREE lessons to build your confidence</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    </div>
-                    <span className="text-sm text-gray-700">Learn at your own pace for 30 days</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    </div>
-                    <span className="text-sm text-gray-700">Upgrade anytime to keep your progress forever</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    </div>
-                    <span className="text-sm text-blue-700">Your free access expires in 30 days, but you can always re-register or upgrade to save your progress!</span>
-                  </li>
-                </ul>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-300" />
+                    <span className="text-blue-50">Learn at your own pace for 30 days</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-300" />
+                    <span className="text-blue-50">Upgrade anytime to keep your progress forever</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-300" />
+                    <span className="text-blue-50">Real workplace scenarios from Filipino professionals</span>
+                  </div>
+                </div>
               </div>
 
-              {/* What You'll Get Card */}
-              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">What You'll Get</h3>
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    </div>
-                    <span className="text-sm text-gray-700">30 Free Foundation Lessons</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    </div>
-                    <span className="text-sm text-gray-700">Filipino Professional Scenarios</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    </div>
-                    <span className="text-sm text-gray-700">Progress Tracking & Achievements</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    </div>
-                    <span className="text-sm text-gray-700">Daily Learning Reminders</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    </div>
-                    <span className="text-sm text-gray-700">Mobile App Experience</span>
-                  </li>
-                </ul>
+              {/* Features Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <BookOpen className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">120 Scenarios</h3>
+                  <p className="text-sm text-gray-600">Complete curriculum covering all workplace situations</p>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                    <Target className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Progress Tracking</h3>
+                  <p className="text-sm text-gray-600">Track your achievements and learning milestones</p>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                    <Award className="w-5 h-5 text-green-600" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Professional Certificate</h3>
+                  <p className="text-sm text-gray-600">Earn recognition for your communication skills</p>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <Users className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Mobile Experience</h3>
+                  <p className="text-sm text-gray-600">Learn on-the-go with our mobile-optimized platform</p>
+                </div>
+              </div>
+
+              {/* 30-Day Warning Card - Moved to Bottom */}
+              <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-2xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-orange-800">Important Notice</h3>
+                    <p className="text-sm text-orange-700">Free trial limitations</p>
+                  </div>
+                </div>
+                <p className="text-sm text-orange-700 leading-relaxed">
+                  Your free access expires in 30 days, but you can always re-register or upgrade to save your progress!
+                </p>
               </div>
             </motion.div>
           </div>
