@@ -4,53 +4,55 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Search, Shield, Lock, Star, Target, Trophy, Crown, Users, Calendar, Building, Globe, Award, Zap, MessageSquare, Headphones, ShoppingBag, Car, Share2 } from 'lucide-react'
 import NotificationBell from '../components/NotificationBell'
+import { useUser } from '../providers'
 
 export default function AchievementsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedRarity, setSelectedRarity] = useState('All Rarities')
   const [shareModal, setShareModal] = useState<{ open: boolean, achievement: any | null, anchor: { x: number, y: number } | null }>({ open: false, achievement: null, anchor: null })
+  const { user } = useUser()
 
-  // Mock user progress data
+  // Real user progress data based on actual user data
   const userProgress = {
-    unlocked: 1, // Only Conversation Starter is unlocked
-    locked: 23,
-    totalXP: 50, // Only the Conversation Starter achievement
-    completion: 4.2 // Based on 1/24 achievements
+    unlocked: user?.completed_lessons?.length || 0,
+    locked: 24 - (user?.completed_lessons?.length || 0),
+    totalXP: user?.total_xp || 0,
+    completion: user?.completed_lessons?.length ? Math.round((user.completed_lessons.length / 24) * 100) : 0
   }
 
-  // Mock achievement progress data - Realistic progression from bottom to top
+  // Real achievement progress based on user's actual progress
   const achievementProgress = {
-    // Legendary (Hardest - Top) - 0% progress
-    1: 0, // Conversation Legend - 0/100 days
-    2: 17, // Professional Expert - 17/90 lessons (some progress)
+    // Legendary (Hardest - Top) - Based on user's actual progress
+    1: user?.current_streak ? Math.min(user.current_streak, 100) : 0, // Conversation Legend - based on streak
+    2: user?.completed_lessons?.length ? Math.min(user.completed_lessons.length, 90) : 0, // Professional Expert - based on completed lessons
     3: 0, // Conflict Resolver - 0/10 scenarios
     
-    // Epic (Hard - Upper) - 0% progress
-    4: 0, // Leadership Communicator - 0/20 lessons
+    // Epic (Hard - Upper) - Based on user's actual progress
+    4: user?.completed_lessons?.length ? Math.min(user.completed_lessons.length, 20) : 0, // Leadership Communicator - based on completed lessons
     5: 0, // Promotion Ready - 0/15 scenarios
-    6: 0, // Confident Communicator - 0/8 scenarios
+    6: user?.completed_lessons?.length ? Math.min(user.completed_lessons.length, 8) : 0, // Confident Communicator - based on completed lessons
     7: 0, // Workplace Mentor - 0/5 colleagues
     
-    // Rare (Medium - Middle) - 0% progress
-    8: 0, // Monthly Master - 0/30 days
+    // Rare (Medium - Middle) - Based on user's actual progress
+    8: user?.current_streak ? Math.min(user.current_streak, 30) : 0, // Monthly Master - based on streak
     9: 0, // Client Champion - 0/12 scenarios
     10: 0, // Pakikipagkapwa Master - 0/8 scenarios
     11: 0, // Bayanihan Builder - 0/5 colleagues
     12: 0, // OFW Communicator - 0/10 scenarios
-    13: 0, // Meeting Master - 0/15 scenarios
+    13: user?.completed_lessons?.length ? Math.min(user.completed_lessons.length, 15) : 0, // Meeting Master - based on completed lessons
     
-    // Uncommon (Easier - Lower) - Some progress
+    // Uncommon (Easier - Lower) - Based on user's actual progress
     14: 0, // Community Connector - 0/8 connections
     15: 0, // Conversation Evangelist - 0/3 shares
-    16: 0, // Conversation Scholar - 0/30 lessons
-    17: 0, // Weekly Warrior - 0/7 days
-    18: 0, // Elevator Expert - 0/12 scenarios
+    16: user?.completed_lessons?.length ? Math.min(user.completed_lessons.length, 30) : 0, // Conversation Scholar - based on completed lessons
+    17: user?.current_streak ? Math.min(user.current_streak, 7) : 0, // Weekly Warrior - based on streak
+    18: user?.completed_lessons?.length ? Math.min(user.completed_lessons.length, 12) : 0, // Elevator Expert - based on completed lessons
     19: 0, // Hiya Overcomer - 0/8 conversations
     
-    // Common (Easiest - Bottom) - Most progress
+    // Common (Easiest - Bottom) - Based on user's actual progress
     20: 0, // BPO Professional - 0/10 scenarios
     21: 0, // Family Diplomat - 0/5 conversations
-    22: 100, // Conversation Starter - COMPLETED (first achievement)
+    22: user?.completed_lessons?.length && user.completed_lessons.length > 0 ? 100 : 0, // Conversation Starter - COMPLETED if any lessons done
     23: 0, // Jeepney Networker - 0/8 scenarios
     24: 0, // Mall Socializer - 0/6 scenarios
   }
@@ -372,7 +374,7 @@ export default function AchievementsPage() {
   }
 
   const handleSharePlatform = (platform: string, achievement: any) => {
-    const text = `🎉 I just unlocked "${achievement.title}" in ConvoMaster! ${achievement.description} #ConvoMaster #ProfessionalSkills`;
+    const text = `🎉 I just unlocked "${achievement.title}" in UsapUpgrade! ${achievement.description} #UsapUpgrade #ProfessionalSkills`;
     const url = window.location.origin;
     let shareUrl = '';
     if (platform === 'facebook') {

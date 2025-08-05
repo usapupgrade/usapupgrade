@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { ArrowRight, Trophy, Target, Zap, Calendar, Star, TrendingUp, BookOpen, Users, Award, Lightbulb, Crown, Settings } from 'lucide-react'
 import NotificationBell from '../components/NotificationBell'
 import { lessons, getLessonByNumber, getNextLesson, getProgressPercentage } from '../data/lessons'
-import { mockUserProgress, updateUserProgress, getProgressPercentage as getUserProgressPercentage, getCurrentLesson, getCompletedLessons, getTotalXP, getStreak, resetProgress } from '../data/categoryProgress'
 import { achievements, calculateAchievementProgress } from '../data/achievements'
 import { useUser } from '../providers'
 import TrialCountdown from '../components/TrialCountdown'
@@ -45,15 +44,26 @@ export default function Dashboard() {
   }
 
   // Use real user data from Supabase
-  const currentLesson = getLessonByNumber(user.current_lesson || 1)
-  const nextLesson = getNextLesson(user.current_lesson || 1)
+  const getNextUncompletedLesson = () => {
+    const completedLessons = user.completed_lessons || []
+    for (let i = 1; i <= 120; i++) {
+      if (!completedLessons.includes(i)) {
+        return getLessonByNumber(i)
+      }
+    }
+    return getLessonByNumber(120) // All lessons completed
+  }
+  
+  const currentLesson = getNextUncompletedLesson()
+  const nextLesson = getNextLesson(currentLesson?.lessonNumber || 1)
   const progressPercentage = ((user.completed_lessons?.length || 0) / 120) * 100
   const totalLessons = 120
 
-  // Get real unlocked achievements
-  const unlockedAchievements = achievements.filter(achievement => 
-    calculateAchievementProgress(achievement.id).isUnlocked
-  )
+  // Get real unlocked achievements based on user progress
+  const unlockedAchievements = achievements.filter(achievement => {
+    const progress = calculateAchievementProgress(achievement.id)
+    return progress.isUnlocked
+  })
   const recentAchievements = unlockedAchievements.slice(0, 3)
 
   const handleLessonComplete = (lessonNumber: number, xpEarned: number) => {

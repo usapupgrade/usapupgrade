@@ -13,9 +13,7 @@ export default function NotificationBell() {
   // Load notifications from service
   useEffect(() => {
     const loadNotifications = () => {
-      // Initialize premium notifications by default
-      notificationService.initializePremiumNotifications()
-      
+      // Don't initialize demo notifications - only show real ones
       const notifs = notificationService.getNotifications()
       console.log('Loaded notifications:', notifs)
       setNotifications(notifs)

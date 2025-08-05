@@ -1,43 +1,38 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '../lib/supabase'
 import { User as SupabaseUser, Session } from '@supabase/supabase-js'
 
 // User interface
 interface User {
+  // Basic user info
   id: string
   email: string
   name: string
-  avatar_url?: string
-  subscription_status: 'free' | 'premium' | 'lifetime'
-  is_premium?: boolean
   
-  // Trial system fields
+  // Subscription info
+  subscription_status?: string
+  is_expired?: boolean
+  re_registration_count?: number
   expires_at?: string
-  is_expired: boolean
-  re_registration_count: number
   
   // Progress tracking fields
-  total_xp: number
-  current_level: number
-  current_streak: number
-  longest_streak: number
-  current_lesson: number
-  completed_lessons: number[]
+  total_xp?: number
+  current_level?: number
+  current_streak?: number
+  longest_streak?: number
+  current_lesson?: number
+  completed_lessons?: number[]
   
   // User preferences
-  primary_goal: string
-  experience_level: string
-  daily_time_commitment: string
+  primary_goal?: string
+  experience_level?: string
+  daily_time_commitment?: string
   
-  // Certification fields
-  certification_first_name?: string
-  certification_last_name?: string
-  certification_name_updated_at?: string
-  
-  // Google OAuth fields
-  google_id?: string
+  // Timestamps
+  created_at?: string
+  updated_at?: string
 }
 
 interface UserContextType {
@@ -94,36 +89,51 @@ function UserProvider({ children }: { children: ReactNode }) {
   // Create user profile in database
   const createUserProfile = async (supabaseUser: SupabaseUser, name: string): Promise<User | null> => {
     try {
+      console.log('Creating user profile matching existing structure...')
+      console.log('User data to insert:', { id: supabaseUser.id, email: supabaseUser.email!, name: name })
+      
       const { data, error } = await supabase
         .from('users')
         .insert({
           id: supabaseUser.id,
           email: supabaseUser.email!,
           name: name,
-          avatar_url: supabaseUser.user_metadata?.avatar_url,
-          google_id: supabaseUser.user_metadata?.sub,
+          avatar_url: null,
+          google_id: null,
           subscription_status: 'free',
-          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days trial
+          subscription_end_date: null,
+          stripe_customer_id: null,
+          expires_at: null,
           is_expired: false,
           re_registration_count: 0,
+          primary_goal: 'professional_communication',
+          experience_level: 'beginner',
+          daily_time_commitment: '15_minutes',
+          preferred_study_time: null,
+          timezone: 'Asia/Manila',
+          certification_first_name: null,
+          certification_last_name: null,
+          certification_name_updated_at: null,
           total_xp: 0,
           current_level: 1,
           current_streak: 0,
           longest_streak: 0,
-          current_lesson: 1,
-          completed_lessons: [],
-          primary_goal: 'small_talk',
-          experience_level: 'beginner',
-          daily_time_commitment: '5_minutes'
+          last_lesson_date: null,
+          email_notifications: true,
+          push_notifications: true,
+          sound_effects: true,
+          completed_lessons: []
         })
-        .select()
+        .select('*')
         .single()
 
       if (error) {
         console.error('Error creating user profile:', error)
+        console.error('Error details:', error.message, error.details, error.hint)
         return null
       }
 
+      console.log('User profile created successfully:', data)
       return data
     } catch (error) {
       console.error('Error creating user profile:', error)
@@ -138,11 +148,14 @@ function UserProvider({ children }: { children: ReactNode }) {
         console.log('Auth state changed:', event, session?.user?.id)
         
         if (session?.user) {
-          // User is signed in
+          // User is signed in - wait a moment for server-side callback to complete
+          console.log('Waiting for server-side callback to complete...')
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          
           let userProfile = await fetchUserProfile(session.user)
           
           if (!userProfile) {
-            // Create new user profile if it doesn't exist
+            console.log('No user profile found after waiting, creating one...')
             userProfile = await createUserProfile(session.user, session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User')
           }
           
@@ -178,10 +191,11 @@ function UserProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
+      console.log('Initiating Google OAuth...')
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://usapupgrade.com/auth/callback',
+          redirectTo: 'https://www.usapupgrade.com/auth/callback',
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -190,11 +204,14 @@ function UserProvider({ children }: { children: ReactNode }) {
       })
 
       if (error) {
+        console.error('OAuth error:', error)
         return { success: false, error: error.message }
       }
 
+      console.log('OAuth initiated successfully')
       return { success: true }
     } catch (error) {
+      console.error('Unexpected OAuth error:', error)
       return { success: false, error: 'An unexpected error occurred' }
     }
   }
@@ -256,7 +273,7 @@ function UserProvider({ children }: { children: ReactNode }) {
   const resetPassword = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://usapupgrade.com/auth/reset-password',
+        redirectTo: 'https://www.usapupgrade.com/auth/reset-password',
       })
 
       if (error) {
@@ -299,11 +316,19 @@ function UserProvider({ children }: { children: ReactNode }) {
   }
 
   const getDaysLeft = (user: User): number => {
-    if (user.subscription_status !== 'free' || !user.expires_at) return 999
+    if (user.subscription_status !== 'free') return 0
+    
+    // For free users without expires_at, give them 30 days trial
+    if (!user.expires_at) {
+      const trialStart = new Date(user.created_at || new Date())
+      const trialEnd = new Date(trialStart.getTime() + (30 * 24 * 60 * 60 * 1000)) // 30 days
+      const now = new Date()
+      return Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+    }
     
     const now = new Date()
     const expiryDate = new Date(user.expires_at)
-    return Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    return Math.max(0, Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
   }
 
   const value = {

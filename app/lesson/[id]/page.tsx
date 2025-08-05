@@ -6,21 +6,14 @@ import Link from 'next/link'
 import { ArrowLeft, ArrowRight, CheckCircle, XCircle, Trophy, Star, Lock } from 'lucide-react'
 import NotificationBell from '../../components/NotificationBell'
 import { getLessonByNumber, getNextLesson, getPreviousLesson } from '../../data/lessons'
-import { mockUserProgress, updateUserProgress, getCurrentLesson, getCompletedLessons, getTotalXP, getStreak } from '../../data/categoryProgress'
 import { canAccessLesson, hasPremiumAccess } from '../../data/userSubscription'
 import AccessControl from '../../components/AccessControl'
 import { notificationService } from '../../lib/notificationService'
-
-interface UserProgress {
-  userId: string
-  currentLesson: number
-  completedLessons: number[]
-  totalXP: number
-  streak: number
-}
+import { useUser } from '../../providers'
 
 export default function LessonPage({ params }: { params: { id: string } }) {
   const router = useRouter()
+  const { user, updateUser } = useUser()
   const lessonNumber = parseInt(params.id)
   const lesson = getLessonByNumber(lessonNumber)
   const nextLesson = getNextLesson(lessonNumber)
@@ -29,32 +22,33 @@ export default function LessonPage({ params }: { params: { id: string } }) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [showFeedback, setShowFeedback] = useState(false)
   const [showCompletion, setShowCompletion] = useState(false)
-  const [userProgress, setUserProgress] = useState<UserProgress>({
-    userId: mockUserProgress.userId,
-    currentLesson: getCurrentLesson(),
-    completedLessons: getCompletedLessons(),
-    totalXP: getTotalXP(),
-    streak: getStreak()
-  })
-
   const [xpEarned, setXpEarned] = useState(0)
 
-  // Refresh progress data when component mounts
-  useEffect(() => {
-    setUserProgress({
-      userId: mockUserProgress.userId,
-      currentLesson: getCurrentLesson(),
-      completedLessons: getCompletedLessons(),
-      totalXP: getTotalXP(),
-      streak: getStreak()
-    })
-  }, [lessonNumber])
+  // Check if lesson is completed using real user data
+  const isLessonCompleted = user?.completed_lessons?.includes(lessonNumber) || false
 
   useEffect(() => {
-    if (lesson && userProgress.completedLessons.includes(lessonNumber)) {
+    if (lesson && isLessonCompleted) {
       setShowCompletion(true)
     }
-  }, [lesson, lessonNumber, userProgress.completedLessons])
+  }, [lesson, lessonNumber, isLessonCompleted])
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please Sign In</h2>
+          <p className="text-gray-600 mb-6">You need to sign in to access lessons.</p>
+          <Link 
+            href="/auth/signin"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+          >
+            Sign In
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   if (!lesson) {
     return (
@@ -113,32 +107,44 @@ export default function LessonPage({ params }: { params: { id: string } }) {
 
   const handleContinue = () => {
     if (nextLesson) {
-      window.location.href = `/lesson/${nextLesson.lessonNumber}`
+      router.push(`/lesson/${nextLesson.lessonNumber}`)
     } else {
-      window.location.href = '/dashboard'
+      router.push('/dashboard')
     }
   }
 
   const handleCompleteLesson = () => {
-    if (!userProgress.completedLessons.includes(lessonNumber)) {
+    if (!isLessonCompleted) {
+      // Find the next uncompleted lesson
+      const completedLessons = [...(user.completed_lessons || []), lessonNumber]
+      let nextUncompletedLesson = lessonNumber + 1
+      while (completedLessons.includes(nextUncompletedLesson) && nextUncompletedLesson <= 120) {
+        nextUncompletedLesson++
+      }
+      
       // Update global progress
-      updateUserProgress(lessonNumber, lesson.xpReward)
+      updateUser({
+        completed_lessons: completedLessons,
+        current_lesson: nextUncompletedLesson,
+        total_xp: (user.total_xp || 0) + lesson.xpReward
+      })
       
       // Update local state
       const newProgress = {
-        ...userProgress,
-        completedLessons: [...userProgress.completedLessons, lessonNumber],
-        totalXP: userProgress.totalXP + lesson.xpReward,
-        currentLesson: nextLesson ? nextLesson.lessonNumber : lessonNumber
+        ...user,
+        completed_lessons: completedLessons,
+        current_lesson: nextUncompletedLesson,
+        total_xp: (user.total_xp || 0) + lesson.xpReward
       }
-      setUserProgress(newProgress)
+      updateUser(newProgress)
       setXpEarned(lesson.xpReward)
       
       // Add notification for lesson completion
       notificationService.addLessonCompletedNotification(lessonNumber, lesson.title)
       
       // Check for streak milestones
-      const newStreak = getStreak()
+      const newStreak = (user.current_streak || 0) + 1
+      const newLongestStreak = Math.max(newStreak, user.longest_streak || 0)
       if (newStreak % 7 === 0 && newStreak > 0) {
         notificationService.addStreakNotification(newStreak)
       }
@@ -171,12 +177,12 @@ export default function LessonPage({ params }: { params: { id: string } }) {
                 <NotificationBell />
                 <div className="flex items-center">
                   <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                  <span className="text-sm font-medium text-gray-600">{userProgress.totalXP} XP</span>
+                  <span className="text-sm font-medium text-gray-600">{user.total_xp} XP</span>
                 </div>
-                <div className="flex items-center">
-                  <Trophy className="w-4 h-4 text-orange-500 mr-1" />
-                  <span className="text-sm font-medium text-gray-600">{userProgress.streak} day streak</span>
-                </div>
+                                  <div className="flex items-center">
+                    <Trophy className="w-4 h-4 text-orange-500 mr-1" />
+                    <span className="text-sm font-medium text-gray-600">{user.current_streak} day streak</span>
+                  </div>
               </div>
             </div>
           </div>

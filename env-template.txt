@@ -3,17 +3,21 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
+# Lemon Squeezy Configuration
+NEXT_PUBLIC_LEMON_SQUEEZY_STORE_ID=your_store_id
+NEXT_PUBLIC_LEMON_SQUEEZY_PRODUCT_ID=your_product_id
+NEXT_PUBLIC_LEMON_SQUEEZY_VARIANT_ID=your_variant_id
+NEXT_PUBLIC_LEMON_SQUEEZY_ENVIRONMENT=development
+LEMON_SQUEEZY_API_KEY=your_api_key
+LEMON_SQUEEZY_WEBHOOK_SECRET=your_webhook_secret
+
 # App Configuration
-NEXT_PUBLIC_APP_URL=https://usapupgrade.com
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret
+NEXTAUTH_URL=http://localhost:3000
 
-# Gumroad Payment Processing
-NEXT_PUBLIC_GUMROAD_PRODUCT_ID=your_gumroad_product_id_here
-NEXT_PUBLIC_GUMROAD_PRODUCT_URL=https://gumroad.com/l/your_product_id
-NEXT_PUBLIC_GUMROAD_ENVIRONMENT=development
-
-# Email Configuration (Optional - for notifications)
+# Email Configuration (if using Resend)
 RESEND_API_KEY=your_resend_api_key
-RESEND_FROM_EMAIL=noreply@usapupgrade.com
 
 # Analytics (Optional)
 NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=your_ga_id

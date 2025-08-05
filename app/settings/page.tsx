@@ -2,31 +2,29 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Settings, Bell, Download, Smartphone, Shield, User, CheckCircle, Smartphone as PhoneIcon, HardDrive, Wifi, WifiOff } from 'lucide-react'
+import { ArrowLeft, Download, Bell, Shield, User, CheckCircle, PhoneIcon, HardDrive, Wifi, WifiOff } from 'lucide-react'
+import { useUser } from '../providers'
 import PushNotifications from '../components/PushNotifications'
 import CertificationNameForm from '../components/CertificationNameForm'
 import CertificationDownload from '../components/CertificationDownload'
-import { useUser } from '../providers'
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<'pwa' | 'notifications' | 'privacy' | 'account'>('pwa')
-  const { user } = useUser()
-
-  // For demo purposes, if no user context, default to free user
-  const isPremium = user?.subscription_status === 'premium' || user?.subscription_status === 'lifetime'
+  const [activeTab, setActiveTab] = useState('notifications')
+  const { user, updateUser } = useUser()
+  const [displayName, setDisplayName] = useState(user?.name || '')
 
   const tabs = [
-    {
-      id: 'pwa',
-      name: 'App Installation',
-      icon: Download,
-      description: 'Install ConvoMaster as a mobile app'
-    },
     {
       id: 'notifications',
       name: 'Notifications',
       icon: Bell,
       description: 'Manage push notifications and reminders'
+    },
+    {
+      id: 'pwa',
+      name: 'App Installation',
+      icon: Download,
+      description: 'Install UsapUpgrade as a mobile app'
     },
     {
       id: 'privacy',
@@ -41,6 +39,30 @@ export default function SettingsPage() {
       description: 'Manage your account and preferences'
     }
   ]
+
+  const handleDisplayNameChange = async (newName: string) => {
+    setDisplayName(newName)
+    
+    if (user) {
+      try {
+        const response = await fetch('/api/users/update-name', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newName })
+        })
+        
+        if (response.ok) {
+          // Update local user state
+          updateUser({ name: newName })
+        }
+      } catch (error) {
+        console.error('Error updating display name:', error)
+      }
+    }
+  }
+
+  // For demo purposes, if no user context, default to free user
+  const isPremium = user?.subscription_status === 'premium' || user?.subscription_status === 'lifetime'
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -111,11 +133,11 @@ export default function SettingsPage() {
                   <div className="bg-blue-50 rounded-xl p-4 sm:p-6">
                     <div className="flex items-start space-x-4 sm:space-x-6">
                       <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Smartphone className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
+                        <PhoneIcon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-blue-900 mb-2 sm:mb-3">
-                          Install ConvoMaster as an App
+                          Install UsapUpgrade as an App
                         </h3>
                         <p className="text-sm sm:text-base text-blue-700 mb-4 sm:mb-6 leading-relaxed">
                           Get the full app experience with offline access, push notifications, and home screen installation.
@@ -201,7 +223,7 @@ export default function SettingsPage() {
                   <div className="bg-blue-50 rounded-xl p-4 sm:p-6">
                     <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-blue-900 mb-3 sm:mb-4">Offline Mode</h3>
                     <p className="text-sm sm:text-base text-blue-700 mb-4 sm:mb-6 leading-relaxed">
-                      ConvoMaster works offline! Your progress is saved locally and syncs when you're back online.
+                      UsapUpgrade works offline! Your progress is saved locally and syncs when you're back online.
                     </p>
                     <div className="space-y-2 sm:space-y-3">
                       <div className="flex items-center text-sm sm:text-base text-blue-800">
@@ -239,22 +261,21 @@ export default function SettingsPage() {
                         <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                           Display Name
                         </label>
-                        <input
-                          type="text"
-                          value={user?.name || ''}
-                          onChange={(e) => {
-                            // Update user name in database
-                            if (user) {
-                              fetch('/api/users/update-name', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ name: e.target.value })
-                              })
-                            }
-                          }}
-                          className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg text-sm sm:text-base"
-                          placeholder="Enter your display name"
-                        />
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
+                            className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-900"
+                            placeholder="Enter your display name"
+                          />
+                          <button
+                            onClick={() => handleDisplayNameChange(displayName)}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                          >
+                            Save
+                          </button>
+                        </div>
                         <p className="text-xs text-gray-500 mt-1">This name will appear in your profile and admin dashboard</p>
                       </div>
                       <div>
@@ -263,7 +284,7 @@ export default function SettingsPage() {
                         </label>
                         <input
                           type="email"
-                          value={user?.email || "demo@convomaster.app"}
+                          value={user?.email || ""}
                           disabled
                           className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 text-sm sm:text-base"
                         />
@@ -273,8 +294,12 @@ export default function SettingsPage() {
                           Subscription Status
                         </label>
                         <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                          <span className="px-3 sm:px-4 py-2 text-sm sm:text-base font-medium rounded-full w-fit bg-blue-100 text-blue-800">
-                            Premium Plan
+                          <span className={`px-3 sm:px-4 py-2 text-sm sm:text-base font-medium rounded-full w-fit ${
+                            user?.subscription_status === 'premium' 
+                              ? 'bg-blue-100 text-blue-800' 
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {user?.subscription_status === 'premium' ? 'Premium Plan' : 'Free Trial'}
                           </span>
                         </div>
                       </div>

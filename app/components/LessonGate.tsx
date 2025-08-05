@@ -45,7 +45,6 @@ export default function LessonGate({ lessonNumber, children, className = '' }: L
       </div>
       
       <PremiumUpgrade
-        userEmail={user?.email}
         variant="button"
         className="w-full"
       />

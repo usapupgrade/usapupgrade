@@ -24,7 +24,10 @@ import {
   BookOpen,
   MessageSquare,
   Tag,
-  RefreshCw
+  RefreshCw,
+  UserCheck,
+  UserPlus,
+  Crown
 } from 'lucide-react'
 import { useDarkMode } from '../providers'
 
@@ -35,13 +38,17 @@ export default function AdminDashboard() {
   const { isDarkMode, toggleDarkMode } = useDarkMode()
   const router = useRouter()
 
-  // Simple analytics data - will be populated from real database
+  // Enhanced analytics data with user focus
   const [analytics, setAnalytics] = useState({
     totalUsers: 0,
     premiumUsers: 0,
     totalRevenue: 0,
     totalPurchases: 0,
-    recentPurchases: []
+    recentUsers: 0,
+    recentPurchases: 0,
+    recentRevenue: 0,
+    conversionRate: 0,
+    recentPurchasesList: []
   })
 
   useEffect(() => {
@@ -55,6 +62,10 @@ export default function AdminDashboard() {
     
     // Load real analytics data
     loadAnalytics()
+    
+    // Auto-refresh every 30 seconds for real-time updates
+    const interval = setInterval(loadAnalytics, 30000)
+    return () => clearInterval(interval)
   }, [router])
 
   const loadAnalytics = async () => {
@@ -66,12 +77,20 @@ export default function AdminDashboard() {
         const data = await response.json()
         if (data.success && data.data) {
           const overview = data.data.overview
+          const conversionRate = overview.totalUsers > 0 
+            ? ((overview.premiumUsers / overview.totalUsers) * 100).toFixed(1)
+            : '0'
+            
           setAnalytics({
             totalUsers: overview.totalUsers || 0,
             premiumUsers: overview.premiumUsers || 0,
             totalRevenue: overview.totalRevenue || 0,
             totalPurchases: overview.totalPurchases || 0,
-            recentPurchases: data.data.recentPurchases || []
+            recentUsers: overview.recentUsers || 0,
+            recentPurchases: overview.recentPurchases || 0,
+            recentRevenue: overview.recentRevenue || 0,
+            conversionRate: parseFloat(conversionRate),
+            recentPurchasesList: data.data.recentPurchases || []
           })
         } else {
           // Fallback to empty data
@@ -80,7 +99,11 @@ export default function AdminDashboard() {
             premiumUsers: 0,
             totalRevenue: 0,
             totalPurchases: 0,
-            recentPurchases: []
+            recentUsers: 0,
+            recentPurchases: 0,
+            recentRevenue: 0,
+            conversionRate: 0,
+            recentPurchasesList: []
           })
         }
       }
@@ -97,9 +120,9 @@ export default function AdminDashboard() {
   }
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-PH', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'PHP'
     }).format(amount)
   }
 
@@ -236,131 +259,212 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Total Users */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`p-6 rounded-xl shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Total Users
-                </p>
-                <p className={`text-2xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                  {formatNumber(analytics.totalUsers)}
-                </p>
+        {/* User Base Focus - Primary Metrics */}
+        <div className="mb-8">
+          <h2 className={`text-2xl font-bold mb-6 ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+            User Base Overview
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Total Users */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`p-6 rounded-xl shadow-sm border-l-4 border-blue-500 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Total Users
+                  </p>
+                  <p className={`text-3xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+                    {formatNumber(analytics.totalUsers)}
+                  </p>
+                  {analytics.recentUsers > 0 && (
+                    <p className="text-sm text-green-600 flex items-center gap-1 mt-1">
+                      <ArrowUpRight className="w-4 h-4" />
+                      +{analytics.recentUsers} this week
+                    </p>
+                  )}
+                </div>
+                <Users className="w-10 h-10 text-blue-500" />
               </div>
-              <Users className="w-8 h-8 text-blue-500" />
-            </div>
-          </motion.div>
+            </motion.div>
 
-          {/* Premium Users */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className={`p-6 rounded-xl shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Premium Users
-                </p>
-                <p className={`text-2xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                  {formatNumber(analytics.premiumUsers)}
-                </p>
+            {/* Premium Users */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className={`p-6 rounded-xl shadow-sm border-l-4 border-green-500 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Premium Users
+                  </p>
+                  <p className={`text-3xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+                    {formatNumber(analytics.premiumUsers)}
+                  </p>
+                  <p className="text-sm text-green-600 flex items-center gap-1 mt-1">
+                    <Crown className="w-4 h-4" />
+                    {analytics.conversionRate}% conversion
+                  </p>
+                </div>
+                <Crown className="w-10 h-10 text-green-500" />
               </div>
-              <DollarSign className="w-8 h-8 text-green-500" />
-            </div>
-          </motion.div>
+            </motion.div>
 
-          {/* Total Revenue */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className={`p-6 rounded-xl shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Total Revenue
-                </p>
-                <p className={`text-2xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                  {formatCurrency(analytics.totalRevenue)}
-                </p>
+            {/* Total Revenue */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className={`p-6 rounded-xl shadow-sm border-l-4 border-purple-500 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Total Revenue
+                  </p>
+                  <p className={`text-3xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+                    {formatCurrency(analytics.totalRevenue)}
+                  </p>
+                  {analytics.recentRevenue > 0 && (
+                    <p className="text-sm text-green-600 flex items-center gap-1 mt-1">
+                      <ArrowUpRight className="w-4 h-4" />
+                      +{formatCurrency(analytics.recentRevenue)} this week
+                    </p>
+                  )}
+                </div>
+                <TrendingUp className="w-10 h-10 text-purple-500" />
               </div>
-              <TrendingUp className="w-8 h-8 text-purple-500" />
-            </div>
-          </motion.div>
+            </motion.div>
 
-          {/* Total Purchases */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className={`p-6 rounded-xl shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Total Purchases
-                </p>
-                <p className={`text-2xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                  {formatNumber(analytics.totalPurchases)}
-                </p>
+            {/* Total Purchases */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className={`p-6 rounded-xl shadow-sm border-l-4 border-orange-500 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Total Purchases
+                  </p>
+                  <p className={`text-3xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+                    {formatNumber(analytics.totalPurchases)}
+                  </p>
+                  {analytics.recentPurchases > 0 && (
+                    <p className="text-sm text-green-600 flex items-center gap-1 mt-1">
+                      <ArrowUpRight className="w-4 h-4" />
+                      +{analytics.recentPurchases} this week
+                    </p>
+                  )}
+                </div>
+                <CreditCard className="w-10 h-10 text-orange-500" />
               </div>
-              <CreditCard className="w-8 h-8 text-orange-500" />
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
 
-        {/* Recent Purchases */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className={`p-6 rounded-xl shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-        >
-          <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-            Recent Purchases
-          </h3>
-          
-          {analytics.recentPurchases.length > 0 ? (
-            <div className="space-y-3">
-              {analytics.recentPurchases.map((purchase: any, index: number) => (
-                <div key={index} className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                  <div className="flex items-center justify-between">
+        {/* Real-time Status */}
+        <div className={`mb-8 p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Lemon Squeezy Integration Active
+              </span>
+            </div>
+            <span className="text-xs text-gray-500">
+              Auto-refresh every 30s
+            </span>
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Recent Purchases */}
+          <div className={`p-6 rounded-xl shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+                Recent Purchases
+              </h3>
+              <button
+                onClick={() => window.location.href = '/admin/revenue'}
+                className="text-blue-500 hover:text-blue-600 text-sm"
+              >
+                View All
+              </button>
+            </div>
+            
+            {analytics.recentPurchasesList.length > 0 ? (
+              <div className="space-y-3">
+                {analytics.recentPurchasesList.slice(0, 5).map((purchase: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div>
-                      <p className={`font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                        {purchase.email}
-                      </p>
-                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        {purchase.purchaseDate}
-                      </p>
+                      <p className="font-medium text-sm">{purchase.email}</p>
+                      <p className="text-xs text-gray-500">{purchase.purchase_date}</p>
                     </div>
                     <div className="text-right">
-                      <p className={`font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                        {formatCurrency(purchase.price)}
-                      </p>
-                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        {purchase.status}
-                      </p>
+                      <p className="font-medium text-sm">{formatCurrency(purchase.price)}</p>
+                      <p className="text-xs text-gray-500">{purchase.currency}</p>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  No recent purchases
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Quick Actions */}
+          <div className={`p-6 rounded-xl shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+              Quick Actions
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => window.location.href = '/admin/users'}
+                className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+              >
+                <Users className="w-6 h-6 text-blue-500 mb-2" />
+                <p className="text-sm font-medium">Manage Users</p>
+              </button>
+              
+              <button
+                onClick={() => window.location.href = '/admin/revenue'}
+                className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+              >
+                <DollarSign className="w-6 h-6 text-green-500 mb-2" />
+                <p className="text-sm font-medium">View Revenue</p>
+              </button>
+              
+              <button
+                onClick={() => window.location.href = '/admin/content'}
+                className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
+              >
+                <BookOpen className="w-6 h-6 text-purple-500 mb-2" />
+                <p className="text-sm font-medium">Content</p>
+              </button>
+              
+              <button
+                onClick={() => window.location.href = '/admin/support'}
+                className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors"
+              >
+                <MessageSquare className="w-6 h-6 text-orange-500 mb-2" />
+                <p className="text-sm font-medium">Support</p>
+              </button>
             </div>
-          ) : (
-            <div className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-              <CreditCard className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>No purchases yet</p>
-              <p className="text-sm">Purchases will appear here after users make payments</p>
-            </div>
-          )}
-        </motion.div>
+          </div>
+        </div>
       </main>
     </div>
   )

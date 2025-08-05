@@ -30,7 +30,12 @@ export default function PaymentPage() {
               <ArrowLeft className="w-5 h-5 mr-2" />
               Back to Home
             </Link>
-            <div className="text-xl font-bold text-gray-900 absolute left-1/2 transform -translate-x-1/2">UsapUpgrade</div>
+            <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">UU</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900">UsapUpgrade</span>
+            </div>
             <div className="w-20"></div>
           </div>
         </div>
@@ -99,12 +104,14 @@ export default function PaymentPage() {
                       ⚡ Limited time offer • Price increases soon
                     </div>
                   </div>
-                  <PremiumUpgrade 
-                    variant="button"
-                    onSuccess={handleUpgradeSuccess}
-                    onError={handleUpgradeError}
-                    className="bg-white text-blue-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl border-2 border-white"
-                  />
+                  <div className="ml-0">
+                    <PremiumUpgrade 
+                      variant="button"
+                      onSuccess={handleUpgradeSuccess}
+                      onError={handleUpgradeError}
+                      className="bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-blue-50 transition-all shadow-xl hover:shadow-2xl border-2 border-white transform hover:-translate-y-1 duration-200"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -117,7 +124,7 @@ export default function PaymentPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <CreditCard className="w-4 h-4 text-blue-500" />
-                    <span>Pay via Gumroad</span>
+                    <span>Pay via Lemon Squeezy</span>
                   </div>
                 </div>
               </div>
@@ -185,7 +192,7 @@ export default function PaymentPage() {
       {/* Secure Payment Note */}
       <div className="text-center mt-8">
         <p className="text-gray-400 text-sm">
-          Secure payment using Gumroad
+          Secure payment using Lemon Squeezy
         </p>
       </div>
     </div>
