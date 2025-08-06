@@ -17,7 +17,7 @@ const loadUserProgress = (): UserProgress => {
   }
   
   return {
-    userId: 'demo-user-123',
+    userId: '',
     currentLesson: 1,
     completedLessons: [],
     totalXP: 0,
@@ -33,7 +33,14 @@ const saveUserProgress = (progress: UserProgress) => {
   }
 }
 
-export const mockUserProgress: UserProgress = loadUserProgress()
+export const mockUserProgress: UserProgress = {
+  userId: '',
+  currentLesson: 1,
+  completedLessons: [],
+  totalXP: 0,
+  streak: 0,
+  lastActivity: new Date().toISOString()
+}
 
 export const updateUserProgress = (lessonNumber: number, xpEarned: number) => {
   if (!mockUserProgress.completedLessons.includes(lessonNumber)) {

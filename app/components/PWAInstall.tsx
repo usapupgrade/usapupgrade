@@ -13,6 +13,12 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function PWAInstall() {
+  // Temporarily disabled to prevent DOM manipulation conflicts
+  // Will be re-enabled after fixing lesson 15 crash
+  return null
+
+  // Original code commented out for now
+  /*
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [showInstallPrompt, setShowInstallPrompt] = useState(false)
   const [isInstalled, setIsInstalled] = useState(false)
@@ -98,7 +104,7 @@ export default function PWAInstall() {
               Install ConvoMaster
             </h3>
             <p className="text-xs text-gray-600 mb-3">
-              Get the app experience with offline access and push notifications
+              Get the app experience with push notifications and easy access
             </p>
             
             <div className="flex space-x-2">
@@ -122,4 +128,5 @@ export default function PWAInstall() {
       </div>
     </div>
   )
+  */
 } 

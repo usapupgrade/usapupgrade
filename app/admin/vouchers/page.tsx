@@ -206,7 +206,9 @@ export default function VoucherManagement() {
     const a = document.createElement('a')
     a.href = url
     a.download = 'vouchers-export.csv'
-    document.body.appendChild(a)
+          if (document.body) {
+        document.body.appendChild(a)
+      }
     a.click()
     window.URL.revokeObjectURL(url)
     document.body.removeChild(a)

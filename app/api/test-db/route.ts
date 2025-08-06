@@ -1,55 +1,49 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { NextResponse } from 'next/server'
+import { supabase } from '../../../lib/supabase'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    if (!supabaseAdmin) {
+    // Test database connection and check user table structure
+    const { data: users, error } = await supabase
+      .from('users')
+      .select('*')
+      .limit(1)
+
+    if (error) {
       return NextResponse.json({ 
-        error: 'Database connection failed - no admin client',
-        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-        hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+        error: 'Database connection failed', 
+        details: error.message 
       }, { status: 500 })
     }
 
-    // Test database connection by fetching basic data
-    const { data: users, error: usersError } = await supabaseAdmin
-      .from('users')
-      .select('id, email, subscription_status, created_at')
-      .limit(5)
-
-    const { data: purchases, error: purchasesError } = await supabaseAdmin
-      .from('purchases')
-      .select('*')
-      .limit(5)
-
-    const { data: analytics, error: analyticsError } = await supabaseAdmin
-      .from('daily_analytics')
-      .select('*')
-      .limit(5)
+    // Check if the required fields exist
+    const firstUser = users?.[0]
+    const hasCompletedLessons = firstUser && 'completed_lessons' in firstUser
+    const hasCurrentLesson = firstUser && 'current_lesson' in firstUser
+    const hasTotalXp = firstUser && 'total_xp' in firstUser
 
     return NextResponse.json({
       success: true,
-      database: {
-        users: users || [],
-        purchases: purchases || [],
-        analytics: analytics || [],
-        errors: {
-          users: usersError?.message,
-          purchases: purchasesError?.message,
-          analytics: analyticsError?.message
-        }
+      databaseConnected: true,
+      userFields: {
+        hasCompletedLessons,
+        hasCurrentLesson,
+        hasTotalXp,
+        sampleUser: firstUser ? {
+          id: firstUser.id,
+          email: firstUser.email,
+          completed_lessons: firstUser.completed_lessons,
+          current_lesson: firstUser.current_lesson,
+          total_xp: firstUser.total_xp,
+          current_streak: firstUser.current_streak
+        } : null
       },
-      environment: {
-        hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-        hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL
-      }
+      allFields: firstUser ? Object.keys(firstUser) : []
     })
 
   } catch (error) {
-    console.error('Test DB error:', error)
     return NextResponse.json({ 
-      error: 'Internal server error',
+      error: 'Unexpected error', 
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }

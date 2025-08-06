@@ -1,9 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { userInputSchema, validateAndSanitize, sanitizeEmail, sanitizeString } from '../../lib/validation'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, name, subscriptionStatus = 'free' } = await request.json()
+    const body = await request.json()
+    
+    // Validate and sanitize input
+    const validation = userInputSchema.validate(body)
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
+    }
+    
+    const { email, name } = validation.data!
+    const subscriptionStatus = 'free'
+    const sanitizedEmail = sanitizeEmail(email)
+    const sanitizedName = sanitizeString(name)
     
     // Check if supabaseAdmin is available
     if (!supabaseAdmin) {
@@ -14,7 +26,7 @@ export async function POST(request: NextRequest) {
     const { data: existingUser } = await supabaseAdmin
       .from('profiles')
       .select('*')
-      .eq('email', email)
+      .eq('email', sanitizedEmail)
       .single()
     
     if (existingUser) {
@@ -25,8 +37,8 @@ export async function POST(request: NextRequest) {
     const { data: user, error } = await supabaseAdmin
       .from('profiles')
       .insert({
-        email,
-        name,
+        email: sanitizedEmail,
+        name: sanitizedName,
         subscription_status: subscriptionStatus,
         total_xp: 0,
         current_level: 1,

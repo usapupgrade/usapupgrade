@@ -6,6 +6,8 @@ import { Providers } from './providers'
 import ServiceWorkerRegistration from './components/ServiceWorkerRegistration'
 import PWAInstall from './components/PWAInstall'
 import DataMigrationBanner from './components/DataMigrationBanner'
+// import ProgressDebug from './components/ProgressDebug'
+// import AuthDebug from './components/AuthDebug'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -75,11 +77,16 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#f2750a" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
       </head>
       <body className={`${inter.className} h-full`}>
         <Providers>
           {children}
+          <ServiceWorkerRegistration />
+          <PWAInstall />
+          <DataMigrationBanner />
+          {/* <ProgressDebug /> */}
+          {/* <AuthDebug /> */}
           <Toaster 
             position="top-center"
             richColors

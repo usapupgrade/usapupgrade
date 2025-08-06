@@ -140,13 +140,10 @@ export default function SettingsPage() {
                           Install UsapUpgrade as an App
                         </h3>
                         <p className="text-sm sm:text-base text-blue-700 mb-4 sm:mb-6 leading-relaxed">
-                          Get the full app experience with offline access, push notifications, and home screen installation.
+                          Get the full app experience with push notifications and home screen installation.
                         </p>
                         <div className="space-y-2 sm:space-y-3">
-                          <div className="flex items-center text-sm sm:text-base text-blue-800">
-                            <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-3 flex-shrink-0" />
-                            <span>Offline access to lessons and progress</span>
-                          </div>
+
                           <div className="flex items-center text-sm sm:text-base text-blue-800">
                             <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-3 flex-shrink-0" />
                             <span>Push notifications for daily reminders</span>
@@ -220,26 +217,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 rounded-xl p-4 sm:p-6">
-                    <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-blue-900 mb-3 sm:mb-4">Offline Mode</h3>
-                    <p className="text-sm sm:text-base text-blue-700 mb-4 sm:mb-6 leading-relaxed">
-                      UsapUpgrade works offline! Your progress is saved locally and syncs when you're back online.
-                    </p>
-                    <div className="space-y-2 sm:space-y-3">
-                      <div className="flex items-center text-sm sm:text-base text-blue-800">
-                        <PhoneIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-3 flex-shrink-0" />
-                        <span>Access lessons without internet</span>
-                      </div>
-                      <div className="flex items-center text-sm sm:text-base text-blue-800">
-                        <HardDrive className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-3 flex-shrink-0" />
-                        <span>Progress saved locally</span>
-                      </div>
-                      <div className="flex items-center text-sm sm:text-base text-blue-800">
-                        <Wifi className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-3 flex-shrink-0" />
-                        <span>Automatic sync when online</span>
-                      </div>
-                    </div>
-                  </div>
+
                 </div>
               </div>
             </div>

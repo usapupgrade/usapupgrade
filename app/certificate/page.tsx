@@ -108,10 +108,12 @@ export default function CertificatePage() {
         const a = document.createElement('a')
         a.href = url
         a.download = `UsapUpgrade_Certificate_${data.data.first_name}_${data.data.last_name}.pdf`
-        document.body.appendChild(a)
-        a.click()
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
+        if (document.body) {
+          document.body.appendChild(a)
+          a.click()
+          window.URL.revokeObjectURL(url)
+          document.body.removeChild(a)
+        }
         
         toast.success('Certificate generated and downloaded successfully!')
       } else if (response.status === 409) {
@@ -166,10 +168,12 @@ export default function CertificatePage() {
       const a = document.createElement('a')
       a.href = url
               a.download = `UsapUpgrade_Certificate_${certificationData.certification.first_name}_${certificationData.certification.last_name}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
+      if (document.body) {
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      }
       
       toast.success('Certificate downloaded successfully!')
     } catch (error) {

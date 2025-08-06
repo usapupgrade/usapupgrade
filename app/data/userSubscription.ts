@@ -9,9 +9,9 @@ export interface UserSubscription {
 
 // Mock user subscription data
 export let mockUserSubscription: UserSubscription = {
-  userId: 'demo-user-123',
-  isPremium: true,
-  subscriptionType: 'premium'
+  userId: '',
+  isPremium: false,
+  subscriptionType: 'free'
 }
 
 // Check if user has premium access

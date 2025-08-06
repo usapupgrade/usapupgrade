@@ -37,6 +37,10 @@ CREATE TABLE users (
   longest_streak INTEGER DEFAULT 0,
   last_lesson_date DATE,
   
+  -- Progress tracking fields
+  completed_lessons INTEGER[] DEFAULT '{}',
+  current_lesson INTEGER DEFAULT 1,
+  
   -- Settings
   email_notifications BOOLEAN DEFAULT true,
   push_notifications BOOLEAN DEFAULT true,

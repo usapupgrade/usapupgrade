@@ -75,13 +75,11 @@ function UserProvider({ children }: { children: ReactNode }) {
         .single()
 
       if (error) {
-        console.error('Error fetching user profile:', error)
         return null
       }
 
       return data
     } catch (error) {
-      console.error('Error fetching user profile:', error)
       return null
     }
   }
@@ -89,9 +87,6 @@ function UserProvider({ children }: { children: ReactNode }) {
   // Create user profile in database
   const createUserProfile = async (supabaseUser: SupabaseUser, name: string): Promise<User | null> => {
     try {
-      console.log('Creating user profile matching existing structure...')
-      console.log('User data to insert:', { id: supabaseUser.id, email: supabaseUser.email!, name: name })
-      
       const { data, error } = await supabase
         .from('users')
         .insert({
@@ -128,40 +123,102 @@ function UserProvider({ children }: { children: ReactNode }) {
         .single()
 
       if (error) {
-        console.error('Error creating user profile:', error)
-        console.error('Error details:', error.message, error.details, error.hint)
         return null
       }
 
-      console.log('User profile created successfully:', data)
       return data
     } catch (error) {
-      console.error('Error creating user profile:', error)
       return null
     }
   }
 
-  // Handle authentication state changes
+  // Enhanced mobile session management
+  const isMobile = () => {
+    if (typeof window === 'undefined') return false
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  }
+
+  // Enhanced session validation for mobile
+  const validateSession = async (): Promise<boolean> => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        console.log('No session found during validation')
+        return false
+      }
+      
+      // Additional validation for mobile
+      if (isMobile()) {
+        // Check if session is still valid
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          console.log('Mobile session validation failed')
+          return false
+        }
+      }
+      
+      return true
+    } catch (error) {
+      console.error('Session validation error:', error)
+      return false
+    }
+  }
+
+  // Handle authentication state changes - ENHANCED FOR MOBILE
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id)
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
         
         if (session?.user) {
-          // User is signed in - wait a moment for server-side callback to complete
-          console.log('Waiting for server-side callback to complete...')
-          await new Promise(resolve => setTimeout(resolve, 1000))
-          
           let userProfile = await fetchUserProfile(session.user)
           
           if (!userProfile) {
-            console.log('No user profile found after waiting, creating one...')
             userProfile = await createUserProfile(session.user, session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User')
           }
           
           setUser(userProfile)
         } else {
-          // User is signed out
+          setUser(null)
+        }
+      } catch (error) {
+        console.error('Session check error:', error)
+        setUser(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    checkSession()
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id)
+        
+        try {
+          if (session?.user) {
+            // Enhanced session refresh for mobile
+            if (isMobile()) {
+              try {
+                await supabase.auth.refreshSession()
+                console.log('Mobile session refreshed')
+              } catch (refreshError) {
+                console.error('Mobile session refresh failed:', refreshError)
+              }
+            }
+            
+            let userProfile = await fetchUserProfile(session.user)
+            
+            if (!userProfile) {
+              userProfile = await createUserProfile(session.user, session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User')
+            }
+            
+            setUser(userProfile)
+          } else {
+            setUser(null)
+          }
+        } catch (error) {
+          console.error('Error in auth state change:', error)
           setUser(null)
         }
         
@@ -191,30 +248,83 @@ function UserProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
-      console.log('Initiating Google OAuth...')
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://www.usapupgrade.com/auth/callback',
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       })
 
       if (error) {
-        console.error('OAuth error:', error)
         return { success: false, error: error.message }
       }
 
-      console.log('OAuth initiated successfully')
       return { success: true }
     } catch (error) {
-      console.error('Unexpected OAuth error:', error)
       return { success: false, error: 'An unexpected error occurred' }
     }
   }
+
+  // Enhanced session refresh for mobile
+  const refreshSession = async () => {
+    try {
+      const { data, error } = await supabase.auth.refreshSession()
+      if (error) {
+        console.error('Session refresh error:', error)
+        return false
+      }
+      console.log('Session refreshed successfully')
+      return true
+    } catch (error) {
+      console.error('Session refresh failed:', error)
+      return false
+    }
+  }
+
+  // Enhanced mobile session management
+  useEffect(() => {
+    if (user && typeof window !== 'undefined') {
+      if (isMobile()) {
+        console.log('Mobile device detected - enhanced session management')
+        
+        // More frequent session checks for mobile
+        const interval = setInterval(async () => {
+          try {
+            const isValid = await validateSession()
+            if (!isValid) {
+              console.log('Mobile session invalid, attempting refresh')
+              const refreshed = await refreshSession()
+              if (!refreshed) {
+                console.log('Mobile session refresh failed')
+                // Don't redirect automatically - let the user continue
+              }
+            }
+          } catch (error) {
+            console.error('Mobile session check failed:', error)
+          }
+        }, 2 * 60 * 1000) // 2 minutes for mobile
+        
+        // Additional session check on app focus
+        const handleFocus = async () => {
+          try {
+            const isValid = await validateSession()
+            if (!isValid) {
+              await refreshSession()
+            }
+          } catch (error) {
+            console.error('Focus session check failed:', error)
+          }
+        }
+        
+        window.addEventListener('focus', handleFocus)
+        
+        return () => {
+          clearInterval(interval)
+          window.removeEventListener('focus', handleFocus)
+        }
+      }
+    }
+  }, [user])
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
@@ -262,8 +372,10 @@ function UserProvider({ children }: { children: ReactNode }) {
         return { success: false, error: error.message }
       }
 
-      // Update local state
-      setUser(prev => prev ? { ...prev, ...updates } : null)
+      // Update local state immediately
+      const updatedUser = { ...user, ...updates }
+      setUser(updatedUser)
+      
       return { success: true }
     } catch (error) {
       return { success: false, error: 'An unexpected error occurred' }

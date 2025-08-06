@@ -10,31 +10,42 @@ import { useRouter } from 'next/navigation'
 export default function SignInPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
   const { user, loading: userLoading, signInWithGoogle } = useUser()
   const router = useRouter()
+
+
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
     if (!userLoading && user) {
-      console.log('User is authenticated, redirecting to dashboard')
-      router.push('/dashboard')
+      console.log('User authenticated, redirecting to dashboard')
+      // Add a small delay to ensure the auth state is stable
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 100)
     }
   }, [user, userLoading, router])
+
+  // Show loading screen if user is authenticated
+  if (!userLoading && user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Signing you in...</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleGoogleSignIn = async () => {
     setLoading(true)
     setError('')
 
     try {
-      console.log('Starting Google sign in...')
-      const result = await signInWithGoogle()
-      console.log('Google sign in result:', result)
-      if (!result.success) {
-        setError(result.error || 'Google sign in failed')
-        setLoading(false)
-      }
+      await signInWithGoogle()
     } catch (error) {
-      console.error('Google sign in error:', error)
       setError('An unexpected error occurred')
       setLoading(false)
     }
@@ -50,15 +61,16 @@ export default function SignInPage() {
 
       {/* Header */}
       <header className="relative bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 py-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
-              <ArrowLeft className="w-5 h-5 mr-2" />
-              Back to Home
+            <Link href="/" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors text-sm sm:text-base">
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Back to Home</span>
+              <span className="sm:hidden">Back</span>
             </Link>
             <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-3">
               <motion.div 
-                className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg"
+                className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
@@ -79,7 +91,7 @@ export default function SignInPage() {
       </header>
 
       {/* Main Content - Centered */}
-      <div className="relative flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
+      <div className="relative flex items-center justify-center min-h-[calc(100vh-80px)] px-4 sm:px-6 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -87,18 +99,18 @@ export default function SignInPage() {
           className="w-full max-w-md"
         >
           {/* Welcome Section */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-10">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-lg"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-3 rounded-full text-sm font-semibold mb-6 shadow-lg"
             >
               <Sparkles className="w-4 h-4" />
               Welcome Back
             </motion.div>
             <motion.h1 
-              className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4"
+              className="text-2xl sm:text-4xl font-bold text-gray-900 mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
@@ -106,7 +118,7 @@ export default function SignInPage() {
               Continue Your Journey
             </motion.h1>
             <motion.p 
-              className="text-lg text-gray-600"
+              className="text-base sm:text-lg text-gray-600"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}

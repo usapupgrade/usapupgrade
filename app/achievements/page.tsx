@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, Search, Shield, Lock, Star, Target, Trophy, Crown, Users, Calendar, Building, Globe, Award, Zap, MessageSquare, Headphones, ShoppingBag, Car, Share2 } from 'lucide-react'
 import NotificationBell from '../components/NotificationBell'
 import { useUser } from '../providers'
+import { achievements, calculateAchievementProgress } from '../data/achievements'
 
 export default function AchievementsPage() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -15,344 +16,207 @@ export default function AchievementsPage() {
   // Real user progress data based on actual user data
   const userProgress = {
     unlocked: user?.completed_lessons?.length || 0,
-    locked: 24 - (user?.completed_lessons?.length || 0),
+    locked: achievements.length - (user?.completed_lessons?.length || 0),
     totalXP: user?.total_xp || 0,
-    completion: user?.completed_lessons?.length ? Math.round((user.completed_lessons.length / 24) * 100) : 0
+    completion: user?.completed_lessons?.length ? Math.round((user.completed_lessons.length / 120) * 100) : 0
   }
 
-  // Real achievement progress based on user's actual progress
-  const achievementProgress = {
-    // Legendary (Hardest - Top) - Based on user's actual progress
-    1: user?.current_streak ? Math.min(user.current_streak, 100) : 0, // Conversation Legend - based on streak
-    2: user?.completed_lessons?.length ? Math.min(user.completed_lessons.length, 90) : 0, // Professional Expert - based on completed lessons
-    3: 0, // Conflict Resolver - 0/10 scenarios
+  // Calculate real achievement progress based on user's actual progress
+  const calculateRealAchievementProgress = (achievementId: string) => {
+    const completedLessons = user?.completed_lessons || []
+    const totalXP = user?.total_xp || 0
+    const streak = user?.current_streak || 0
     
-    // Epic (Hard - Upper) - Based on user's actual progress
-    4: user?.completed_lessons?.length ? Math.min(user.completed_lessons.length, 20) : 0, // Leadership Communicator - based on completed lessons
-    5: 0, // Promotion Ready - 0/15 scenarios
-    6: user?.completed_lessons?.length ? Math.min(user.completed_lessons.length, 8) : 0, // Confident Communicator - based on completed lessons
-    7: 0, // Workplace Mentor - 0/5 colleagues
-    
-    // Rare (Medium - Middle) - Based on user's actual progress
-    8: user?.current_streak ? Math.min(user.current_streak, 30) : 0, // Monthly Master - based on streak
-    9: 0, // Client Champion - 0/12 scenarios
-    10: 0, // Pakikipagkapwa Master - 0/8 scenarios
-    11: 0, // Bayanihan Builder - 0/5 colleagues
-    12: 0, // OFW Communicator - 0/10 scenarios
-    13: user?.completed_lessons?.length ? Math.min(user.completed_lessons.length, 15) : 0, // Meeting Master - based on completed lessons
-    
-    // Uncommon (Easier - Lower) - Based on user's actual progress
-    14: 0, // Community Connector - 0/8 connections
-    15: 0, // Conversation Evangelist - 0/3 shares
-    16: user?.completed_lessons?.length ? Math.min(user.completed_lessons.length, 30) : 0, // Conversation Scholar - based on completed lessons
-    17: user?.current_streak ? Math.min(user.current_streak, 7) : 0, // Weekly Warrior - based on streak
-    18: user?.completed_lessons?.length ? Math.min(user.completed_lessons.length, 12) : 0, // Elevator Expert - based on completed lessons
-    19: 0, // Hiya Overcomer - 0/8 conversations
-    
-    // Common (Easiest - Bottom) - Based on user's actual progress
-    20: 0, // BPO Professional - 0/10 scenarios
-    21: 0, // Family Diplomat - 0/5 conversations
-    22: user?.completed_lessons?.length && user.completed_lessons.length > 0 ? 100 : 0, // Conversation Starter - COMPLETED if any lessons done
-    23: 0, // Jeepney Networker - 0/8 scenarios
-    24: 0, // Mall Socializer - 0/6 scenarios
-  }
+    switch (achievementId) {
+      case 'first-lesson':
+        return { 
+          progress: completedLessons.length > 0 ? 100 : 0, 
+          isUnlocked: completedLessons.length > 0 
+        }
+      
+      case 'week-warrior':
+        return { 
+          progress: Math.min((streak / 7) * 100, 100), 
+          isUnlocked: streak >= 7 
+        }
+      
+      case 'month-master':
+        return { 
+          progress: Math.min((streak / 30) * 100, 100), 
+          isUnlocked: streak >= 30 
+        }
+      
+      case 'legend-status':
+        return { 
+          progress: Math.min((streak / 100) * 100, 100), 
+          isUnlocked: streak >= 100 
+        }
 
-  const achievements = [
-    // Legendary (Orange/Gold)
-    {
-      id: 1,
-      title: 'Conversation Legend',
-      description: 'Maintain a 100-day learning streak',
-      xp: 1500,
-      rarity: 'Legendary',
-      icon: Shield,
-      color: 'orange',
-      unlocked: false,
-      progress: 0
-    },
-    {
-      id: 2,
-      title: 'Professional Expert',
-      description: 'Complete all 90 lessons in the course',
-      xp: 1000,
-      rarity: 'Legendary',
-      icon: Building,
-      color: 'orange',
-      unlocked: false,
-      progress: 0
-    },
-    {
-      id: 3,
-      title: 'Conflict Resolver',
-      description: 'Master all workplace conflict resolution scenarios',
-      xp: 800,
-      rarity: 'Epic',
-      icon: Shield,
-      color: 'purple',
-      unlocked: false,
-      progress: 0
-    },
-    // Epic (Purple)
-    {
-      id: 4,
-      title: 'Leadership Communicator',
-      description: 'Complete all advanced leadership communication lessons',
-      xp: 800,
-      rarity: 'Epic',
-      icon: Crown,
-      color: 'purple',
-      unlocked: false,
-      progress: 0
-    },
-    {
-      id: 5,
-      title: 'Promotion Ready',
-      description: 'Complete all leadership preparation scenarios',
-      xp: 800,
-      rarity: 'Epic',
-      icon: Target,
-      color: 'purple',
-      unlocked: false,
-      progress: 0
-    },
-    {
-      id: 6,
-      title: 'Confident Communicator',
-      description: 'Successfully complete 8 professional conversation scenarios',
-      xp: 800,
-      rarity: 'Epic',
-      icon: Award,
-      color: 'purple',
-      unlocked: false,
-      progress: 0
-    },
-    {
-      id: 7,
-      title: 'Workplace Mentor',
-      description: 'Help colleagues improve their conversation skills',
-      xp: 500,
-      rarity: 'Epic',
-      icon: Users,
-      color: 'purple',
-      unlocked: false,
-      progress: 0
-    },
-    // Rare (Blue)
-    {
-      id: 8,
-      title: 'Monthly Master',
-      description: 'Maintain a 30-day learning streak',
-      xp: 500,
-      rarity: 'Rare',
-      icon: Calendar,
-      color: 'blue',
-      unlocked: false,
-      progress: 0,
-      isNew: true
-    },
-    {
-      id: 9,
-      title: 'Client Champion',
-      description: 'Excel in all client relationship scenarios',
-      xp: 500,
-      rarity: 'Rare',
-      icon: Users,
-      color: 'blue',
-      unlocked: false,
-      progress: 0,
-      isNew: true
-    },
-    {
-      id: 10,
-      title: 'Pakikipagkapwa Master',
-      description: 'Excel in Filipino cultural conversation scenarios',
-      xp: 300,
-      rarity: 'Rare',
-      icon: Users,
-      color: 'blue',
-      unlocked: false,
-      progress: 0,
-      isNew: true
-    },
-    {
-      id: 11,
-      title: 'Bayanihan Builder',
-      description: 'Help colleagues and build community through conversations',
-      xp: 300,
-      rarity: 'Rare',
-      icon: Building,
-      color: 'blue',
-      unlocked: false,
-      progress: 0,
-      isNew: true
-    },
-    {
-      id: 12,
-      title: 'OFW Communicator',
-      description: 'Excel in cross-cultural professional conversations',
-      xp: 300,
-      rarity: 'Rare',
-      icon: Globe,
-      color: 'blue',
-      unlocked: false,
-      progress: 0,
-      isNew: true
-    },
-    {
-      id: 13,
-      title: 'Meeting Master',
-      description: 'Excel in all meeting and presentation scenarios',
-      xp: 300,
-      rarity: 'Rare',
-      icon: MessageSquare,
-      color: 'blue',
-      unlocked: false,
-      progress: 0,
-      isNew: true
-    },
-    // Uncommon (Green)
-    {
-      id: 14,
-      title: 'Community Connector',
-      description: 'Build relationships across your local community',
-      xp: 300,
-      rarity: 'Uncommon',
-      icon: Users,
-      color: 'green',
-      unlocked: false,
-      progress: 0
-    },
-    {
-      id: 15,
-      title: 'Conversation Evangelist',
-      description: 'Share your achievements and inspire others',
-      xp: 200,
-      rarity: 'Uncommon',
-      icon: Star,
-      color: 'green',
-      unlocked: false,
-      progress: 0
-    },
-    {
-      id: 16,
-      title: 'Conversation Scholar',
-      description: 'Complete all foundation lessons with perfect scores',
-      xp: 200,
-      rarity: 'Uncommon',
-      icon: Trophy,
-      color: 'green',
-      unlocked: false,
-      progress: 0
-    },
-    {
-      id: 17,
-      title: 'Weekly Warrior',
-      description: 'Maintain a 7-day learning streak',
-      xp: 150,
-      rarity: 'Uncommon',
-      icon: Calendar,
-      color: 'green',
-      unlocked: false,
-      progress: 0
-    },
-    {
-      id: 18,
-      title: 'Elevator Expert',
-      description: 'Master all workplace small talk scenarios',
-      xp: 200,
-      rarity: 'Uncommon',
-      icon: Target,
-      color: 'green',
-      unlocked: false,
-      progress: 0
-    },
-    {
-      id: 19,
-      title: 'Hiya Overcomer',
-      description: 'Confidently participate in challenging professional conversations',
-      xp: 200,
-      rarity: 'Uncommon',
-      icon: Users,
-      color: 'green',
-      unlocked: false,
-      progress: 0
-    },
-    // Common (Gray)
-    {
-      id: 20,
-      title: 'BPO Professional',
-      description: 'Master client service communication scenarios',
-      xp: 150,
-      rarity: 'Common',
-      icon: Headphones,
-      color: 'gray',
-      unlocked: false,
-      progress: 0
-    },
-    {
-      id: 21,
-      title: 'Family Diplomat',
-      description: 'Navigate complex family conversations with skill',
-      xp: 200,
-      rarity: 'Common',
-      icon: Users,
-      color: 'gray',
-      unlocked: false,
-      progress: 0
-    },
-    {
-      id: 22,
-      title: 'Conversation Starter',
-      description: 'Complete your first professional conversation lesson',
-      xp: 50,
-      rarity: 'Common',
-      icon: MessageSquare,
-      color: 'gray',
-      unlocked: true,
-      progress: 100
-    },
-    {
-      id: 23,
-      title: 'Jeepney Networker',
-      description: 'Master daily commute conversation opportunities',
-      xp: 100,
-      rarity: 'Common',
-      icon: Car,
-      color: 'gray',
-      unlocked: false,
-      progress: 0
-    },
-    {
-      id: 24,
-      title: 'Mall Socializer',
-      description: 'Excel in casual Filipino social settings',
-      xp: 150,
-      rarity: 'Common',
-      icon: ShoppingBag,
-      color: 'gray',
-      unlocked: false,
-      progress: 0
+      case 'conversation-scholar':
+        const foundationProgress = completedLessons.filter(l => l <= 30).length
+        return { 
+          progress: Math.min((foundationProgress / 30) * 100, 100), 
+          isUnlocked: foundationProgress >= 30 
+        }
+
+      case 'elevator-expert':
+        const smallTalkProgress = completedLessons.filter(l => l >= 1 && l <= 15).length
+        return { 
+          progress: Math.min((smallTalkProgress / 15) * 100, 100), 
+          isUnlocked: smallTalkProgress >= 15 
+        }
+
+      case 'client-champion':
+        const clientProgress = completedLessons.filter(l => l >= 31 && l <= 60).length
+        return { 
+          progress: Math.min((clientProgress / 30) * 100, 100), 
+          isUnlocked: clientProgress >= 30 
+        }
+
+      case 'conflict-resolver':
+        const conflictProgress = completedLessons.filter(l => l >= 91 && l <= 120).length
+        return { 
+          progress: Math.min((conflictProgress / 30) * 100, 100), 
+          isUnlocked: conflictProgress >= 30 
+        }
+
+      case 'leadership-communicator':
+        const leadershipProgress = completedLessons.filter(l => l >= 61 && l <= 90).length
+        return { 
+          progress: Math.min((leadershipProgress / 30) * 100, 100), 
+          isUnlocked: leadershipProgress >= 30 
+        }
+
+      case 'promotion-ready':
+        const promotionProgress = completedLessons.filter(l => l >= 61 && l <= 120).length
+        return { 
+          progress: Math.min((promotionProgress / 60) * 100, 100), 
+          isUnlocked: promotionProgress >= 60 
+        }
+
+      case 'meeting-master':
+        const meetingProgress = completedLessons.filter(l => l >= 31 && l <= 90).length
+        return { 
+          progress: Math.min((meetingProgress / 60) * 100, 100), 
+          isUnlocked: meetingProgress >= 60 
+        }
+
+      case 'salary-negotiator':
+        const negotiationProgress = completedLessons.filter(l => l >= 91 && l <= 120).length
+        return { 
+          progress: Math.min((negotiationProgress / 30) * 100, 100), 
+          isUnlocked: negotiationProgress >= 30 
+        }
+
+      case 'workplace-mentor':
+        const mentorProgress = completedLessons.filter(l => l >= 61 && l <= 120).length
+        return { 
+          progress: Math.min((mentorProgress / 60) * 100, 100), 
+          isUnlocked: mentorProgress >= 60 
+        }
+
+      // Additional achievements that were missing
+      case 'professional-expert':
+        const expertProgress = completedLessons.length
+        return { 
+          progress: Math.min((expertProgress / 120) * 100, 100), 
+          isUnlocked: expertProgress >= 120 
+        }
+
+      case 'pakikipagkapwa-master':
+        const pakikipagkapwaProgress = completedLessons.filter(l => l >= 1 && l <= 30).length
+        return { 
+          progress: Math.min((pakikipagkapwaProgress / 30) * 100, 100), 
+          isUnlocked: pakikipagkapwaProgress >= 30 
+        }
+
+      case 'bayanihan-builder':
+        const bayanihanProgress = completedLessons.filter(l => l >= 31 && l <= 60).length
+        return { 
+          progress: Math.min((bayanihanProgress / 30) * 100, 100), 
+          isUnlocked: bayanihanProgress >= 30 
+        }
+
+      case 'hiya-overcomer':
+        const hiyaProgress = completedLessons.filter(l => l >= 1 && l <= 20).length
+        return { 
+          progress: Math.min((hiyaProgress / 20) * 100, 100), 
+          isUnlocked: hiyaProgress >= 20 
+        }
+
+      case 'bpo-professional':
+        const bpoProgress = completedLessons.filter(l => l >= 31 && l <= 50).length
+        return { 
+          progress: Math.min((bpoProgress / 20) * 100, 100), 
+          isUnlocked: bpoProgress >= 20 
+        }
+
+      case 'ofw-communicator':
+        const ofwProgress = completedLessons.filter(l => l >= 51 && l <= 80).length
+        return { 
+          progress: Math.min((ofwProgress / 30) * 100, 100), 
+          isUnlocked: ofwProgress >= 30 
+        }
+
+      case 'jeepney-networker':
+        const jeepneyProgress = completedLessons.filter(l => l >= 1 && l <= 15).length
+        return { 
+          progress: Math.min((jeepneyProgress / 15) * 100, 100), 
+          isUnlocked: jeepneyProgress >= 15 
+        }
+
+      case 'mall-socializer':
+        const mallProgress = completedLessons.filter(l => l >= 1 && l <= 10).length
+        return { 
+          progress: Math.min((mallProgress / 10) * 100, 100), 
+          isUnlocked: mallProgress >= 10 
+        }
+
+      case 'family-diplomat':
+        const familyProgress = completedLessons.filter(l => l >= 1 && l <= 25).length
+        return { 
+          progress: Math.min((familyProgress / 25) * 100, 100), 
+          isUnlocked: familyProgress >= 25 
+        }
+
+      case 'community-connector':
+        const communityProgress = completedLessons.filter(l => l >= 1 && l <= 40).length
+        return { 
+          progress: Math.min((communityProgress / 40) * 100, 100), 
+          isUnlocked: communityProgress >= 40 
+        }
+
+      case 'conversation-evangelist':
+        // This is social-based, so using total lessons as proxy
+        const evangelistProgress = completedLessons.length
+        return { 
+          progress: Math.min((evangelistProgress / 50) * 100, 100), 
+          isUnlocked: evangelistProgress >= 50 
+        }
+
+      default:
+        return { progress: 0, isUnlocked: false }
     }
-  ]
+  }
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
-      case 'Legendary': return 'bg-orange-500 text-white'
-      case 'Epic': return 'bg-purple-500 text-white'
-      case 'Rare': return 'bg-blue-500 text-white'
-      case 'Uncommon': return 'bg-green-500 text-white'
-      case 'Common': return 'bg-gray-500 text-white'
+      case 'legendary': return 'bg-orange-500 text-white'
+      case 'epic': return 'bg-purple-500 text-white'
+      case 'rare': return 'bg-blue-500 text-white'
+      case 'uncommon': return 'bg-green-500 text-white'
+      case 'common': return 'bg-gray-500 text-white'
       default: return 'bg-gray-500 text-white'
     }
   }
 
-  const getIconColor = (color: string) => {
-    switch (color) {
-      case 'orange': return 'text-orange-600'
-      case 'purple': return 'text-purple-600'
-      case 'blue': return 'text-blue-600'
-      case 'green': return 'text-green-600'
-      case 'gray': return 'text-gray-600'
+  const getIconColor = (rarity: string) => {
+    switch (rarity) {
+      case 'legendary': return 'text-orange-600'
+      case 'epic': return 'text-purple-600'
+      case 'rare': return 'text-blue-600'
+      case 'uncommon': return 'text-green-600'
+      case 'common': return 'text-gray-600'
       default: return 'text-gray-600'
     }
   }
@@ -394,38 +258,49 @@ export default function AchievementsPage() {
     setShareModal({ open: false, achievement: null, anchor: null });
   }
 
-  const getProgressText = (achievementId: number, progress: number) => {
-    const progressData: { [key: number]: { current: number, total: number, unit: string } } = {
-      1: { current: Math.floor(progress * 1), total: 100, unit: 'days' },
-      2: { current: Math.floor(progress * 0.9), total: 90, unit: 'lessons' },
-      3: { current: Math.floor(progress * 0.1), total: 10, unit: 'scenarios' },
-      4: { current: Math.floor(progress * 0.2), total: 20, unit: 'lessons' },
-      5: { current: Math.floor(progress * 0.15), total: 15, unit: 'scenarios' },
-      6: { current: Math.floor(progress * 0.08), total: 8, unit: 'scenarios' },
-      7: { current: Math.floor(progress * 0.05), total: 5, unit: 'colleagues' },
-      8: { current: Math.floor(progress * 0.3), total: 30, unit: 'days' },
-      9: { current: Math.floor(progress * 0.12), total: 12, unit: 'scenarios' },
-      10: { current: Math.floor(progress * 0.08), total: 8, unit: 'scenarios' },
-      11: { current: Math.floor(progress * 0.05), total: 5, unit: 'colleagues' },
-      12: { current: Math.floor(progress * 0.1), total: 10, unit: 'scenarios' },
-      13: { current: Math.floor(progress * 0.15), total: 15, unit: 'scenarios' },
-      14: { current: Math.floor(progress * 0.08), total: 8, unit: 'connections' },
-      15: { current: Math.floor(progress * 0.03), total: 3, unit: 'shares' },
-      16: { current: Math.floor(progress * 0.3), total: 30, unit: 'lessons' },
-      17: { current: Math.floor(progress * 0.07), total: 7, unit: 'days' },
-      18: { current: Math.floor(progress * 0.12), total: 12, unit: 'scenarios' },
-      19: { current: Math.floor(progress * 0.08), total: 8, unit: 'conversations' },
-      20: { current: Math.floor(progress * 0.1), total: 10, unit: 'scenarios' },
-      21: { current: Math.floor(progress * 0.05), total: 5, unit: 'conversations' },
-      22: { current: 1, total: 1, unit: 'lesson' },
-      23: { current: Math.floor(progress * 0.08), total: 8, unit: 'scenarios' },
-      24: { current: Math.floor(progress * 0.06), total: 6, unit: 'scenarios' }
+  const getProgressText = (achievementId: string, progress: number) => {
+    const completedLessons = user?.completed_lessons || []
+    const streak = user?.current_streak || 0
+    
+    switch (achievementId) {
+      case 'first-lesson':
+        return completedLessons.length > 0 ? '1/1 lesson' : '0/1 lesson'
+      case 'week-warrior':
+        return `${Math.min(streak, 7)}/7 days`
+      case 'month-master':
+        return `${Math.min(streak, 30)}/30 days`
+      case 'legend-status':
+        return `${Math.min(streak, 100)}/100 days`
+      case 'conversation-scholar':
+        const foundationProgress = completedLessons.filter(l => l <= 30).length
+        return `${foundationProgress}/30 lessons`
+      case 'elevator-expert':
+        const smallTalkProgress = completedLessons.filter(l => l >= 1 && l <= 15).length
+        return `${smallTalkProgress}/15 lessons`
+      case 'client-champion':
+        const clientProgress = completedLessons.filter(l => l >= 31 && l <= 60).length
+        return `${clientProgress}/30 lessons`
+      case 'conflict-resolver':
+        const conflictProgress = completedLessons.filter(l => l >= 91 && l <= 120).length
+        return `${conflictProgress}/30 lessons`
+      case 'leadership-communicator':
+        const leadershipProgress = completedLessons.filter(l => l >= 61 && l <= 90).length
+        return `${leadershipProgress}/30 lessons`
+      case 'promotion-ready':
+        const promotionProgress = completedLessons.filter(l => l >= 61 && l <= 120).length
+        return `${promotionProgress}/60 lessons`
+      case 'meeting-master':
+        const meetingProgress = completedLessons.filter(l => l >= 31 && l <= 90).length
+        return `${meetingProgress}/60 lessons`
+      case 'salary-negotiator':
+        const negotiationProgress = completedLessons.filter(l => l >= 91 && l <= 120).length
+        return `${negotiationProgress}/30 lessons`
+      case 'workplace-mentor':
+        const mentorProgress = completedLessons.filter(l => l >= 61 && l <= 120).length
+        return `${mentorProgress}/60 lessons`
+      default:
+        return '0/1'
     }
-    
-    const data = progressData[achievementId]
-    if (!data) return ''
-    
-    return `${data.current}/${data.total} ${data.unit}`
   }
 
   const filteredAchievements = achievements.filter(achievement => {
@@ -531,14 +406,14 @@ export default function AchievementsPage() {
               <select
                 value={selectedRarity}
                 onChange={(e) => setSelectedRarity(e.target.value)}
-                className="px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                className="px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base bg-white text-gray-900"
               >
-                <option>All Rarities</option>
-                <option>Legendary</option>
-                <option>Epic</option>
-                <option>Rare</option>
-                <option>Uncommon</option>
-                <option>Common</option>
+                <option className="text-gray-900">All Rarities</option>
+                <option className="text-gray-900">Legendary</option>
+                <option className="text-gray-900">Epic</option>
+                <option className="text-gray-900">Rare</option>
+                <option className="text-gray-900">Uncommon</option>
+                <option className="text-gray-900">Common</option>
               </select>
             </div>
           </div>
@@ -547,20 +422,18 @@ export default function AchievementsPage() {
         {/* Achievements Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {filteredAchievements.map((achievement) => {
-            const Icon = achievement.icon
-            const progress = achievementProgress[achievement.id as keyof typeof achievementProgress] || 0
-            const isUnlocked = achievement.unlocked || progress === 100
+            const progress = calculateRealAchievementProgress(achievement.id)
+            const isUnlocked = progress.isUnlocked
             
             return (
               <div key={achievement.id} className={`bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 transition-all duration-200 hover:shadow-md ${isUnlocked ? 'ring-2 ring-green-200' : ''}`}>
                 <div className="flex items-start justify-between mb-3 sm:mb-4">
                   <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${isUnlocked ? 'bg-green-100' : 'bg-gray-100'}`}>
-                    <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${isUnlocked ? 'text-green-600' : getIconColor(achievement.color)}`} />
+                                         <span className={`text-2xl ${isUnlocked ? 'text-green-600' : getIconColor(achievement.rarity)}`}>
+                       {achievement.icon}
+                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    {achievement.isNew && (
-                      <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">new</span>
-                    )}
                     <span className={`text-xs px-2 py-1 rounded-full ${getRarityColor(achievement.rarity)}`}>
                       {achievement.rarity}
                     </span>
@@ -571,7 +444,7 @@ export default function AchievementsPage() {
                 <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 leading-relaxed">{achievement.description}</p>
                 
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs sm:text-sm font-semibold text-green-600">+{achievement.xp} XP</span>
+                  <span className="text-xs sm:text-sm font-semibold text-green-600">+{achievement.xpReward} XP</span>
                   <div className="flex items-center space-x-2">
                     {isUnlocked && (
                       <span className="text-xs text-green-600 font-semibold">✓ UNLOCKED</span>
@@ -594,16 +467,16 @@ export default function AchievementsPage() {
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div 
                       className={`h-2 rounded-full transition-all duration-300 ${isUnlocked ? 'bg-green-500' : 'bg-blue-500'}`}
-                      style={{ width: `${progress}%` }}
+                      style={{ width: `${progress.progress}%` }}
                     ></div>
                   </div>
                   <div className="flex items-center justify-between mt-1">
                     <p className="text-xs text-gray-500">
-                      {isUnlocked ? 'Completed!' : `${progress}% complete`}
+                      {isUnlocked ? 'Completed!' : `${progress.progress}% complete`}
                     </p>
-                    {!isUnlocked && progress > 0 && (
+                    {!isUnlocked && progress.progress > 0 && (
                       <p className="text-xs text-gray-400">
-                        {getProgressText(achievement.id, progress)}
+                        {getProgressText(achievement.id, progress.progress)}
                       </p>
                     )}
                   </div>
